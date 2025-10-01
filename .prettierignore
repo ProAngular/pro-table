@@ -1,0 +1,18 @@
+# Ignore everything
+/*
+
+# Make sure production files are ignored
+dist/
+public/
+
+# Do not ignore the following files
+!.github/
+!README.md
+!eslint.config.js
+!package.json
+!src/
+!src/app/
+!src/app/public/
+
+# Re-ignore sub-directories from the above exempt directories:
+.github/CODEOWNERS
