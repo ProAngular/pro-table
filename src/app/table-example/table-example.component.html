@@ -8,6 +8,15 @@
     (change)="selectable.set(selectableToggle.checked)"
     >Selectable Rows</mat-checkbox
   >
+  @if (selectable()) {
+    <mat-checkbox
+      #enableMaxSelectToggle
+      type="checkbox"
+      [checked]="enableMaxSelect()"
+      (change)="enableMaxSelect.set(enableMaxSelectToggle.checked)"
+      >Enable Max Select of 3</mat-checkbox
+    >
+  }
   <mat-checkbox
     #rowClickEnabledToggle
     type="checkbox"
@@ -53,11 +62,12 @@
     [columns]="columns()"
     [data]="data()"
     [highlightOddRows]="highlightOddRows()"
+    [maxSelectableRows]="enableMaxSelect() ? 3 : null"
     [rowClickEnabled]="rowClickEnabled()"
     [selectable]="selectable()"
     [stickyHeader]="stickyHeader()"
-    placeholderEmptyList="No items to display."
     placeholderEmptyData="N/A"
+    placeholderEmptyList="No items to display."
     placeholderLoading="Loading..."
   />
 </section>

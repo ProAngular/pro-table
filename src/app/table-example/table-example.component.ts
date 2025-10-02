@@ -47,6 +47,7 @@ export class TableExampleComponent {
   protected readonly columns = signal(COLUMNS);
   protected readonly copyEmail = signal(false);
   protected readonly data = signal(DATA);
+  protected readonly enableMaxSelect = signal(false);
   protected readonly highlightOddRows = signal(false);
   protected readonly rowClickEnabled = signal(false);
   protected readonly selectable = signal(false);

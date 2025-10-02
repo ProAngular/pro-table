@@ -5,10 +5,11 @@
 :root {
   @include mat.table-overrides(
     (
-      background-color: color-mix(in srgb, #1775d1 12%, white 88%),
+      // background-color: color-mix(in srgb, #1775d1 12%, white 88%),
+      background-color: white,
       header-headline-color: black,
       row-item-label-text-color: rgb(49, 49, 49),
-      row-item-outline-color: rgba(0, 0, 0, 0.12),
+      row-item-outline-color: rgba(0, 0, 0, 0.12)
     )
   );
 }

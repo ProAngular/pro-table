@@ -23,7 +23,9 @@ import {
   OnInit,
   Output,
   TrackByFunction,
+  booleanAttribute,
   inject,
+  numberAttribute,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -119,7 +121,8 @@ export class TableComponent<T extends object & { id: number }>
   @Input() @HostBinding('class.highlight-odd-rows') public highlightOddRows =
     false;
 
-  @Input({ required: false }) public maxSelectableRows: number | null = null;
+  @Input({ required: false, transform: numberAttribute })
+  public maxSelectableRows: number | null = null;
 
   @Input({ required: false }) public placeholderEmptyList =
     'No items to display.';
@@ -128,13 +131,8 @@ export class TableComponent<T extends object & { id: number }>
 
   @Input({ required: false }) public placeholderLoading = 'Loading...';
 
-  @Input({ required: false }) public set stickyHeader(value: BooleanInput) {
-    this.#stickyHeader = coerceBooleanProperty(value);
-  }
-  public get stickyHeader(): boolean {
-    return this.#stickyHeader;
-  }
-  #stickyHeader = false;
+  @Input({ required: false, transform: booleanAttribute })
+  public stickyHeader = false;
 
   @Output() public readonly rowClick = new EventEmitter<T>();
 
