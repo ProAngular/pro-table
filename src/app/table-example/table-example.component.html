@@ -1,3 +1,74 @@
-Table example page
+<h1>Table Example</h1>
 
-<pro-table></pro-table>
+<section>
+  <mat-checkbox
+    #selectableToggle
+    type="checkbox"
+    [checked]="selectable()"
+    (change)="selectable.set(selectableToggle.checked)"
+    >Selectable Rows</mat-checkbox
+  >
+  <mat-checkbox
+    #rowClickEnabledToggle
+    type="checkbox"
+    [checked]="rowClickEnabled()"
+    (change)="rowClickEnabled.set(rowClickEnabledToggle.checked)"
+    >Row Click Enabled</mat-checkbox
+  >
+  <mat-checkbox
+    #stickyHeaderToggle
+    type="checkbox"
+    [checked]="stickyHeader()"
+    (change)="stickyHeader.set(stickyHeaderToggle.checked)"
+    >Sticky Header</mat-checkbox
+  >
+  <mat-checkbox
+    #sortableHeadersToggle
+    type="checkbox"
+    [checked]="sortableHeaders()"
+    (change)="sortableHeaders.set(sortableHeadersToggle.checked)"
+    >Sortable Headers</mat-checkbox
+  >
+  <mat-checkbox
+    #copyEmailToggle
+    type="checkbox"
+    [checked]="copyEmail()"
+    (change)="copyEmail.set(copyEmailToggle.checked)"
+    >Email Copy Click</mat-checkbox
+  >
+  <mat-checkbox
+    #highlightOddRowsToggle
+    type="checkbox"
+    [checked]="highlightOddRows()"
+    (change)="highlightOddRows.set(highlightOddRowsToggle.checked)"
+    >Highlight Odd Rows</mat-checkbox
+  >
+</section>
+
+<section>
+  <pro-table
+    (rowClick)="onRowClick($event)"
+    (rowSelectChange)="onRowSelect($event)"
+    (sortChange)="onSortChange($event)"
+    [columns]="columns()"
+    [data]="data()"
+    [highlightOddRows]="highlightOddRows()"
+    [rowClickEnabled]="rowClickEnabled()"
+    [selectable]="selectable()"
+    [stickyHeader]="stickyHeader()"
+    placeholderEmptyList="No items to display."
+    placeholderEmptyData="N/A"
+    placeholderLoading="Loading..."
+  />
+</section>
+
+@if (selectable()) {
+  <section>
+    <h4>Selected Rows</h4>
+    <textarea
+      rows="15"
+      class="form-value-display"
+      [innerHTML]="pretifyJson(selectedRows())"
+    ></textarea>
+  </section>
+}

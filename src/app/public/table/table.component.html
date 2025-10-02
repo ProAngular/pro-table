@@ -1,1 +1,163 @@
-Table component
+@let columns = columnsChanges | async;
+@let columnKeys = columnKeysChanges | async;
+@let isSelectable = selectableChanges | async;
+@let isAllSelected = isAllSelectedChanges | async;
+
+@if (dataChanges | async; as dataSource) {
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    (matSortChange)="onSortChange($event)"
+    multiTemplateDataRows
+  >
+    @if (isSelectable) {
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox
+            (change)="masterToggle()"
+            [checked]="isAllSelected === true"
+            [indeterminate]="isAllSelected === false && selectedKeys.size > 0"
+          />
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="toggleSelection(row)"
+            [disabled]="
+              maxSelectableRows !== null &&
+              selectedKeys.size >= maxSelectableRows &&
+              !isSelected(row)
+            "
+            [checked]="isSelected(row)"
+          ></mat-checkbox>
+        </td>
+      </ng-container>
+    }
+    @for (column of columns; track column.key) {
+      <ng-container [matColumnDef]="column.key">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          [mat-sort-header]="column.isSortable ? column.key : ''"
+          [disabled]="!column.isSortable"
+        >
+          {{ column.label }}
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let dataSourceItem"
+          #item
+          (click)="onRowClick(dataSourceItem, $event, column, item)"
+          [class.copyable]="column.copyable"
+          [matTooltip]="column.copyable ? 'Click to copy ' + column.label : ''"
+          [style.min-width]="
+            column.minWidthPx ? column.minWidthPx + 'px' : undefined
+          "
+        >
+          @let data = getData(dataSourceItem, column.key);
+          @switch (getTypeOf(data)) {
+            @case ('datetime') {
+              <span [title]="data | dateTime: 'MM/dd/yyyy, hh:mm a (ZZZZ)'">
+                {{ data | dateTime: 'MM/dd/yyyy, hh:mm a' }}
+              </span>
+            }
+            @case ('date') {
+              {{ getDate(data) | date: 'MM/dd/yyyy' }}
+            }
+            @case ('object') {
+              @if (isTableTemplateRefObject(data)) {
+                @let tableTemplateRefObject = data;
+                <ng-container
+                  *ngTemplateOutlet="
+                    tableTemplateRefObject.templateRef;
+                    context: isNonEmptyObject(tableTemplateRefObject.context)
+                      ? tableTemplateRefObject.context
+                      : null
+                  "
+                ></ng-container>
+              } @else {
+                @if (isTableTemplateRefExpandableObject(data)) {
+                  @let tableTemplateRefExpandableObject = data;
+                  <button
+                    class="expandable-row-button"
+                    (click)="
+                      expandableObject =
+                        expandableObject === tableTemplateRefExpandableObject
+                          ? null
+                          : tableTemplateRefExpandableObject;
+                      $event.stopPropagation()
+                    "
+                  >
+                    {{
+                      expandableObject === tableTemplateRefExpandableObject
+                        ? 'Collapse'
+                        : 'Expand'
+                    }}
+                  </button>
+                } @else {
+                  {{ data }}
+                }
+              }
+            }
+            @default {
+              {{ data }}
+            }
+          }
+        </td>
+      </ng-container>
+    }
+    <ng-container matColumnDef="expandedRow">
+      <td
+        mat-cell
+        *matCellDef="let rowObjectData"
+        [attr.colspan]="columnKeys?.length ?? 1"
+      >
+        <div
+          class="expandable-row-details"
+          [@collapseAnimation]="
+            isRowExpanded(rowObjectData, expandableObject)
+              ? 'expanded'
+              : 'collapsed'
+          "
+        >
+          @if (
+            expandableObject && isRowExpanded(rowObjectData, expandableObject)
+          ) {
+            <div [@exitAnimation]>
+              <ng-container
+                *ngTemplateOutlet="
+                  expandableObject.templateRef;
+                  context: isNonEmptyObject(expandableObject.context)
+                    ? expandableObject.context
+                    : null
+                "
+              ></ng-container>
+            </div>
+          }
+        </div>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columnKeys; sticky: stickyHeader"></tr>
+    <tr
+      mat-row
+      *matRowDef="let rowObjectData; columns: columnKeys; let i = dataIndex"
+      [class]="(i + 1) % 2 === 0 ? 'even' : 'odd'"
+      (click)="onRowClick(rowObjectData, $event)"
+    ></tr>
+    <tr
+      mat-row
+      class="expandable-row"
+      *matRowDef="let rowObjectData; columns: ['expandedRow']"
+    ></tr>
+    <tr class="empty" *matNoDataRow>
+      <td [attr.colspan]="columnKeys?.length || 0">
+        {{ placeholderEmptyList }}
+      </td>
+    </tr>
+  </table>
+} @else if ((dataChanges | async) === null) {
+  <p class="loading">{{ placeholderLoading }}</p>
+} @else {
+  <p>Failed to load data.</p>
+}

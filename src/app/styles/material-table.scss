@@ -1,3 +1,27 @@
-// Custom `pro-table` wrapper styles.
-// pro-table {
-// }
+@use '@angular/material' as mat;
+
+// Custom Angular Material table styles.
+// @see https://material.angular.dev/components/table/styling
+:root {
+  @include mat.table-overrides(
+    (
+      background-color: color-mix(in srgb, #1775d1 12%, white 88%),
+      header-headline-color: black,
+      row-item-label-text-color: rgb(49, 49, 49),
+      row-item-outline-color: rgba(0, 0, 0, 0.12),
+    )
+  );
+}
+
+// Your own personal style overrides.
+pro-table {
+  .mat-mdc-table thead {
+    th:not(.mat-mdc-table-sticky) {
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.25);
+    }
+
+    .mat-sort-header-content {
+      font-weight: 600;
+    }
+  }
+}
