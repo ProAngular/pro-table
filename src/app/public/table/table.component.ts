@@ -29,6 +29,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -114,11 +115,14 @@ export class TableComponent<T extends object & { id: number }>
 
   @Input({ required: true })
   public set data(values: readonly T[] | null | undefined) {
-    const dataSource =
-      values === null || values === undefined
-        ? values
-        : new MatTableDataSource([...values]);
-    this.dataSubject.next(dataSource);
+    if (values === null) {
+      this.dataSubject.next(values);
+      return;
+    }
+
+    this.dataSubject.next(
+      new MatTableDataSource<T, MatPaginator>(Array.from(values ?? [])),
+    );
   }
 
   @Input() @HostBinding('class.highlight-odd-rows') public highlightOddRows =
@@ -146,7 +150,7 @@ export class TableComponent<T extends object & { id: number }>
   >();
 
   private readonly dataSubject = new ReplaySubject<
-    MatTableDataSource<T> | null | undefined
+    MatTableDataSource<T, MatPaginator> | null | undefined
   >(1);
   protected readonly dataChanges = this.dataSubject
     .asObservable()
