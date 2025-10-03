@@ -15,6 +15,7 @@ export type NestedKeysOfString<T> = T extends Primitive
               NonNullable<T[P]>
             >}`;
           }[keyof T & string];
+
 export type DeepNestedKeysOfString<T, P extends keyof T & string> =
   T[P] extends Array<infer Inner>
     ? `${P}.${NestedKeysOfString<Inner>}`

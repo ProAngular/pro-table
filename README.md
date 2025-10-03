@@ -108,6 +108,8 @@ npm install @proangular/pro-table --save
 
 ## Usage <a name="usage"></a>
 
+### Importing and Usage <a name="importing-and-usage"></a>
+
 Import the table component to use in your Angular application where used:
 
 ```diff
@@ -131,16 +133,37 @@ Import the table component to use in your Angular application where used:
   ],
 })
 
-...
-
-// Markup
-+ <pro-table>
-+   ... TODO
-+ </pro-table>
+// Markup usage
++ <pro-table [columns]="columns" [data]="data" />
 ```
 
 > ![Info][img-info] See example table code [here][url-example-table-code], or a
 > live demo [here][url-demo].
+
+### API <a name="api"></a>
+
+Input Bindings
+
+| Input                  | Type            | Default Value          | Required | Description                                            |
+| ---------------------- | --------------- | ---------------------- | -------- | ------------------------------------------------------ |
+| `columns`              | `TableColumn[]` | N/A                    |          | Table column definitions mapped to keys in the `data`. |
+| `data`                 | `any[]`         | N/A                    |          | Table data array to display.                           |
+| `highlightOddRows`     | `boolean`       | `false`                |          | Highlight odd rows.                                    |
+| `maxSelectableRows`    | `number`        | No limit               |          | Maximum number of selectable rows.                     |
+| `placeholderEmptyData` | `string`        | `N/A`                  |          | Placeholder text when no data is available for a cell. |
+| `placeholderEmptyList` | `string`        | `No items to display.` |          | Placeholder text when data array is empty.             |
+| `placeholderLoading`   | `string`        | `Loading...`           |          | Placeholder text when data is loading.                 |
+| `rowClickEnabled`      | `boolean`       | `false`                |          | Enable row click event.                                |
+| `selectable`           | `boolean`       | `false`                |          | Enable row selection.                                  |
+| `stickyHeader`         | `boolean`       | `false`                |          | Enable sticky table header.                            |
+
+Event Handling
+
+| Event             | Description                                                 |
+| ----------------- | ----------------------------------------------------------- |
+| `rowClick`        | Emits if a row is clicked when `rowClickEnabled` is true.   |
+| `rowSelectChange` | Emits if a row selection changes when `selectable` is true. |
+| `sortChange`      | Emits when sort changes.                                    |
 
 <p align="right">[ <a href="#index">Index</a> ]</p>
 
@@ -217,12 +240,12 @@ Thank you to the entire Angular team and community for such a great framework to
 build upon. If you have any questions, please let me know by opening an issue
 [here][url-new-issue].
 
-| Type                                                                                                                                             | Info                                                           |
-| :----------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- |
-| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/ng-icons/email.svg" />                | webmaster@codytolene.com                                       |
-| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/simple-icons/github.svg" />           | https://github.com/sponsors/CodyTolene                         |
-| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/simple-icons/buymeacoffee.svg" />     | https://www.buymeacoffee.com/codytolene                        |
-| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/simple-icons/bitcoin-btc-logo.svg" /> | bc1qfx3lvspkj0q077u3gnrnxqkqwyvcku2nml86wmudy7yf2u8edmqq0a5vnt |
+| Type                                                                      | Info                                                           |
+| :------------------------------------------------------------------------ | :------------------------------------------------------------- |
+| <img width="48" src=".github/images/ng-icons/email.svg" />                | webmaster@codytolene.com                                       |
+| <img width="48" src=".github/images/simple-icons/github.svg" />           | https://github.com/sponsors/CodyTolene                         |
+| <img width="48" src=".github/images/simple-icons/buymeacoffee.svg" />     | https://www.buymeacoffee.com/codytolene                        |
+| <img width="48" src=".github/images/simple-icons/bitcoin-btc-logo.svg" /> | bc1qfx3lvspkj0q077u3gnrnxqkqwyvcku2nml86wmudy7yf2u8edmqq0a5vnt |
 
 Fin. Happy programming friend!
 
@@ -230,10 +253,8 @@ Cody Tolene
 
 <!-- LINKS -->
 
-[img-info]:
-  https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/ng-icons/info.svg
+[img-info]: .github/images/ng-icons/info.svg
 [url-demo]: https://www.ProAngular.com/demos/pro-table
-[url-example-table-code]:
-  https://github.com/ProAngular/pro-table/blob/main/src/app/table-example/table-example.component.html
+[url-example-table-code]: src/app/table-example/table-example.component.html
 [url-new-issue]: https://github.com/ProAngular/pro-table/issues
 [url-node-js]: https://nodejs.org/
