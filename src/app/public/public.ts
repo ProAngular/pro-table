@@ -2,10 +2,10 @@
 export { TableComponent } from './table/table.component';
 
 // Pipes
-// export { DateTimePipe } from './pipes';
-
-// Utilities
-// export * from './utilities';
+// export * from './pipes';
 
 // Types
 // export type { } from './types';
+
+// Utilities
+// export * from './utilities';

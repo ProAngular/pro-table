@@ -115,13 +115,13 @@ export class TableComponent<T extends object & { id: number }>
 
   @Input({ required: true })
   public set data(values: readonly T[] | null | undefined) {
-    if (values === null) {
-      this.dataSubject.next(values);
+    if (values === null || values === undefined) {
+      this.dataSubject.next(null);
       return;
     }
 
     this.dataSubject.next(
-      new MatTableDataSource<T, MatPaginator>(Array.from(values ?? [])),
+      new MatTableDataSource<T, MatPaginator>(Array.from(values)),
     );
   }
 
