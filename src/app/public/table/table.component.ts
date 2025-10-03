@@ -38,13 +38,16 @@ import { DateTimePipe } from '../pipes';
 import {
   DefinedPrimitive,
   NestedKeysOfString,
-  Primitive,
   TableColumn,
   TableSortChangeEvent,
   TableTemplateReferenceExpandableObject,
   TableTemplateReferenceObject,
 } from '../types';
-import { isNonEmptyString, isNonEmptyValue } from '../utilities';
+import {
+  isNonEmptyPrimitive,
+  isNonEmptyString,
+  isNonEmptyValue,
+} from '../utilities';
 import { TABLE_ANIMATIONS } from './table-animations';
 
 /**
@@ -235,7 +238,7 @@ export class TableComponent<T extends object & { id: number }>
       }
     }
 
-    if (this.isNonEmptyPrimitive(value) || typeof value === 'object') {
+    if (isNonEmptyPrimitive(value) || typeof value === 'object') {
       return value;
     }
 
@@ -256,11 +259,10 @@ export class TableComponent<T extends object & { id: number }>
     rowObjectData: T,
     expandableObject: TableTemplateReferenceExpandableObject | null,
   ): boolean {
-    if (!this.isRowExpansionEnabled || expandableObject === null) return false;
-    for (const key in rowObjectData) {
-      if (Object.prototype.hasOwnProperty.call(rowObjectData, key)) {
-        if (rowObjectData[key] === expandableObject) return true;
-      }
+    if (expandableObject === null) return false;
+    const obj = rowObjectData as Record<string, unknown>;
+    for (const k of Object.keys(obj)) {
+      if (obj[k] === expandableObject) return true;
     }
     return false;
   }
@@ -403,22 +405,6 @@ export class TableComponent<T extends object & { id: number }>
   private async getSelectedRows(): Promise<T[]> {
     const data = (await firstValueFrom(this.dataChanges))?.data ?? [];
     return data.filter((row) => this.selectedKeys.has(this.trackByFn(0, row)));
-  }
-
-  private isNonEmptyPrimitive(value: unknown): value is NonNullable<Primitive> {
-    return this.isPrimitive(value) && value !== null && value !== undefined;
-  }
-
-  private isPrimitive(value: unknown): value is Primitive {
-    return (
-      value === null ||
-      value === undefined ||
-      typeof value === 'string' ||
-      typeof value === 'number' ||
-      typeof value === 'boolean' ||
-      typeof value === 'symbol' ||
-      typeof value === 'bigint'
-    );
   }
 
   private async updateAllSelectedStatus(): Promise<void> {

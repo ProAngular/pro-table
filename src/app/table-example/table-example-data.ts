@@ -1,6 +1,9 @@
-import { TableColumn } from '../public/types';
+import {
+  TableColumn,
+  TableTemplateReferenceExpandableObject,
+} from '../public/types';
 
-export interface MyCustomData {
+export interface CustomData {
   age: number;
   email: string;
   homePlanet: string;
@@ -9,7 +12,12 @@ export interface MyCustomData {
   name: string;
 }
 
-export const COLUMNS: ReadonlyArray<TableColumn<MyCustomData>> = [
+export type CustomDataExpandable = CustomData &
+  Partial<{
+    template: TableTemplateReferenceExpandableObject<{ data: CustomData }>;
+  }>;
+
+export const COLUMNS: ReadonlyArray<TableColumn<CustomData>> = [
   { key: 'id', label: 'ID' },
   { key: 'age', label: 'Age' },
   { key: 'name', label: 'Name' },
@@ -18,7 +26,18 @@ export const COLUMNS: ReadonlyArray<TableColumn<MyCustomData>> = [
   { key: 'email', label: 'Email' },
 ];
 
-export const DATA: readonly MyCustomData[] = [
+export const COLUMNS_EXPANDABLE: ReadonlyArray<
+  TableColumn<CustomDataExpandable>
+> = [
+  ...COLUMNS,
+  {
+    key: 'template',
+    label: 'Expandable',
+    isSortable: false,
+  } satisfies TableColumn<CustomDataExpandable>,
+];
+
+export const DATA: readonly CustomData[] = [
   {
     age: 19,
     email: 'luke@jedi.com',

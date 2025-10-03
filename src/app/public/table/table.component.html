@@ -39,7 +39,7 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          [mat-sort-header]="column.isSortable ? column.key : ''"
+          mat-sort-header
           [disabled]="!column.isSortable"
         >
           {{ column.label }}
@@ -107,7 +107,7 @@
         </td>
       </ng-container>
     }
-    <ng-container matColumnDef="expandedRow">
+    <ng-container matColumnDef="expandedDetail">
       <td
         mat-cell
         *matCellDef="let rowObjectData"
@@ -148,7 +148,7 @@
     <tr
       mat-row
       class="expandable-row"
-      *matRowDef="let rowObjectData; columns: ['expandedRow']"
+      *matRowDef="let rowObjectData; columns: ['expandedDetail']"
     ></tr>
     <tr class="empty" *matNoDataRow>
       <td [attr.colspan]="columnKeys?.length || 0">

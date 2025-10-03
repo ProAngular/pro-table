@@ -1,66 +1,73 @@
-<h1>Table Example</h1>
-
 <section>
-  <mat-checkbox
-    #selectableToggle
-    type="checkbox"
-    [checked]="selectable()"
-    (change)="selectable.set(selectableToggle.checked)"
-    >Selectable Rows</mat-checkbox
-  >
-  @if (selectable()) {
+  <h3>Table Example</h3>
+
+  <div class="options-group">
     <mat-checkbox
-      #enableMaxSelectToggle
+      #selectableToggle
       type="checkbox"
-      [checked]="enableMaxSelect()"
-      (change)="enableMaxSelect.set(enableMaxSelectToggle.checked)"
-      >Enable Max Select of 3</mat-checkbox
+      [checked]="selectable()"
+      (change)="selectable.set(selectableToggle.checked)"
+      >Selectable Rows</mat-checkbox
     >
-  }
-  <mat-checkbox
-    #rowClickEnabledToggle
-    type="checkbox"
-    [checked]="rowClickEnabled()"
-    (change)="rowClickEnabled.set(rowClickEnabledToggle.checked)"
-    >Row Click Enabled</mat-checkbox
-  >
-  <mat-checkbox
-    #stickyHeaderToggle
-    type="checkbox"
-    [checked]="stickyHeader()"
-    (change)="stickyHeader.set(stickyHeaderToggle.checked)"
-    >Sticky Header</mat-checkbox
-  >
-  <mat-checkbox
-    #sortableHeadersToggle
-    type="checkbox"
-    [checked]="sortableHeaders()"
-    (change)="sortableHeaders.set(sortableHeadersToggle.checked)"
-    >Sortable Headers</mat-checkbox
-  >
-  <mat-checkbox
-    #copyEmailToggle
-    type="checkbox"
-    [checked]="copyEmail()"
-    (change)="copyEmail.set(copyEmailToggle.checked)"
-    >Email Copy Click</mat-checkbox
-  >
-  <mat-checkbox
-    #highlightOddRowsToggle
-    type="checkbox"
-    [checked]="highlightOddRows()"
-    (change)="highlightOddRows.set(highlightOddRowsToggle.checked)"
-    >Highlight Odd Rows</mat-checkbox
-  >
-</section>
+    @if (selectable()) {
+      <mat-checkbox
+        #enableMaxSelectToggle
+        type="checkbox"
+        [checked]="enableMaxSelect()"
+        (change)="enableMaxSelect.set(enableMaxSelectToggle.checked)"
+        >Max Select of 3</mat-checkbox
+      >
+    }
+    <mat-checkbox
+      #rowClickEnabledToggle
+      type="checkbox"
+      [checked]="rowClickEnabled()"
+      (change)="rowClickEnabled.set(rowClickEnabledToggle.checked)"
+      >Row Click Event</mat-checkbox
+    >
+    <mat-checkbox
+      #stickyHeaderToggle
+      type="checkbox"
+      [checked]="stickyHeader()"
+      (change)="stickyHeader.set(stickyHeaderToggle.checked)"
+      >Sticky Header</mat-checkbox
+    >
+    <mat-checkbox
+      #sortableHeadersToggle
+      type="checkbox"
+      [checked]="sortableHeaders()"
+      (change)="sortableHeaders.set(sortableHeadersToggle.checked)"
+      >Sortable Headers</mat-checkbox
+    >
+    <mat-checkbox
+      #copyEmailToggle
+      type="checkbox"
+      [checked]="copyEmail()"
+      (change)="copyEmail.set(copyEmailToggle.checked)"
+      >Copy Email on Click</mat-checkbox
+    >
+    <mat-checkbox
+      #highlightOddRowsToggle
+      type="checkbox"
+      [checked]="highlightOddRows()"
+      (change)="highlightOddRows.set(highlightOddRowsToggle.checked)"
+      >Highlight Odd Rows</mat-checkbox
+    >
+    <mat-checkbox
+      #expandableRowsToggle
+      type="checkbox"
+      [checked]="enableExpandableRows()"
+      (change)="enableExpandableRows.set(expandableRowsToggle.checked)"
+      >Enable Expandable Rows</mat-checkbox
+    >
+  </div>
 
-<section>
   <pro-table
     (rowClick)="onRowClick($event)"
     (rowSelectChange)="onRowSelect($event)"
     (sortChange)="onSortChange($event)"
-    [columns]="columns()"
-    [data]="data()"
+    [columns]="enableExpandableRows() ? columnsExpandable() : columns()"
+    [data]="enableExpandableRows() ? dataExpandable() : data()"
     [highlightOddRows]="highlightOddRows()"
     [maxSelectableRows]="enableMaxSelect() ? 3 : null"
     [rowClickEnabled]="rowClickEnabled()"
@@ -82,3 +89,7 @@
     ></textarea>
   </section>
 }
+
+<ng-template #expendableRow let-data="data">
+  <pre>{{ pretifyJson(data) }}</pre>
+</ng-template>
