@@ -37,8 +37,11 @@
   - [Prerequisites](#prerequisites)
   - [Install Pro Table Components](#install-pro-table-components)
 - [Usage](#usage)
+  - [Importing](#importing)
+  - [Expandable Rows](#expandable-rows)
+  - [API](#api)
 - [Compatibility](#compatibility)
-- [Development](#development)
+- [Contributions](#contributions)
 - [Licensing](#licensing)
 - [Wrapping Up](#wrapping-up)
 
@@ -60,11 +63,60 @@ https://www.ProAngular.com/demos/pro-table
 
 ## Description <a name="description"></a>
 
-This project...
+`@proangular/pro-table` is a **type-safe, Angular 20–first abstraction** over
+Angular Material’s table. It’s designed for apps using **standalone components,
+signals, and the new control-flow syntax** so you can wire up robust data grids
+quickly without giving up control of your data model or rendering. The component
+keeps Material’s performance and accessibility surface, while adding
+strongly-typed columns, selection, copy-on-click, expandable detail rows, and a
+clean sorting contract that **emits intent** instead of mutating your data for
+you.
 
-The components included in this project are:
+### Why it’s useful (technical)
 
-- **TableComponent**: ...
+- **Compile-time guarantees for columns & data**  
+  Columns are declared as `TableColumn<T>`, where `key` is tied to your row
+  model `T`. That prevents typos and drift between your data and headers.
+
+- **Sorting as a pure UI signal**  
+  The table **does not** reorder your data. Instead it emits a
+  `TableSortChangeEvent<T>` with a typed key and direction; you decide how to
+  sort (or not) in your host component. This keeps business logic out of the
+  view layer and plays well with signals/NgRx/etc.
+
+- **Expandable rows that are template-driven**  
+  Provide a `TemplateRef` per row and the table renders it in a dedicated detail
+  row using `multiTemplateDataRows`. Expansion is reference-based, so you can
+  attach any context object you like.
+
+- **Selection with guardrails**  
+  Built-in single/multi select with a master checkbox, an optional **max
+  selectable** limit, and an emitted list of selected rows without leaking table
+  internals to the host.
+
+- **Great DX for common table chores**  
+  One-line **copy-to-clipboard** per column (with tooltip and snack-bar
+  feedback), sticky headers, row click events, and cell placeholders for empty
+  values. These affordances reduce the “glue code” you normally write around
+  `MatTable`.
+
+- **Built for Angular 20 patterns**  
+  Uses **OnPush** change detection, `@if/@for/@let` in templates, and small
+  reactive streams (`BehaviorSubject/ReplaySubject` + `shareReplay`) to keep
+  updates efficient. The example shows **signals** + `effect()` integrating
+  cleanly with the component’s inputs.
+
+### Features
+
+- Strong typing for both column definitions and row data (`TableColumn<T>`)
+- Opt-in selection with max count and `rowSelectChange` events
+- Click-to-copy per column with tooltip and snackbar feedback
+- Sticky header option
+- **Expandable** detail rows via `TemplateRef` + `multiTemplateDataRows` with
+  animations
+- **Sort intent** via `sortChange` events no data mutation, you stay in control
+- Works seamlessly with standalone components, signals, and Material’s
+  `MatSort`/`MatTable`
 
 <p align="right">[ <a href="#index">Index</a> ]</p>
 
@@ -108,7 +160,7 @@ npm install @proangular/pro-table --save
 
 ## Usage <a name="usage"></a>
 
-### Importing and Usage <a name="importing-and-usage"></a>
+### Importing <a name="importing"></a>
 
 Import the table component to use in your Angular application where used:
 
@@ -137,8 +189,35 @@ Import the table component to use in your Angular application where used:
 + <pro-table [columns]="columns" [data]="data" />
 ```
 
+<p align="right">[ <a href="#index">Index</a> ]</p>
+
+<!---------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------->
+
+### Expandable Rows <a name="expandable-rows"></a>
+
+```html
+<pro-table [columns]="columns()" [data]="rowsWithDetailTemplate()" />
+
+<ng-template #detailTemplate let-data="data">
+  <pre>{{ data | json }}</pre>
+</ng-template>
+```
+
+Map your data to include a template field typed as
+`TableTemplateReferenceExpandableObject` if you want per-row detail. The table
+uses `multiTemplateDataRows` and a detail row with `expandedDetail` to render
+the template when expanded.
+
 > ![Info][img-info] See example table code [here][url-example-table-code], or a
-> live demo [here][url-demo].
+> live [demo][url-demo].
+
+<p align="right">[ <a href="#index">Index</a> ]</p>
+
+<!---------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------->
 
 ### API <a name="api"></a>
 
@@ -146,16 +225,17 @@ Input Bindings
 
 | Input                  | Type            | Default Value          | Required | Description                                            |
 | ---------------------- | --------------- | ---------------------- | -------- | ------------------------------------------------------ |
-| `columns`              | `TableColumn[]` | N/A                    |          | Table column definitions mapped to keys in the `data`. |
-| `data`                 | `any[]`         | N/A                    |          | Table data array to display.                           |
-| `highlightOddRows`     | `boolean`       | `false`                |          | Highlight odd rows.                                    |
-| `maxSelectableRows`    | `number`        | No limit               |          | Maximum number of selectable rows.                     |
-| `placeholderEmptyData` | `string`        | `N/A`                  |          | Placeholder text when no data is available for a cell. |
-| `placeholderEmptyList` | `string`        | `No items to display.` |          | Placeholder text when data array is empty.             |
-| `placeholderLoading`   | `string`        | `Loading...`           |          | Placeholder text when data is loading.                 |
-| `rowClickEnabled`      | `boolean`       | `false`                |          | Enable row click event.                                |
-| `selectable`           | `boolean`       | `false`                |          | Enable row selection.                                  |
-| `stickyHeader`         | `boolean`       | `false`                |          | Enable sticky table header.                            |
+| `columns`              | `TableColumn[]` | N/A                    | True     | Table column definitions mapped to keys in the `data`. |
+| `data`                 | `any[]`         | N/A                    | True     | Table data array to display.                           |
+| `highlightOddRows`     | `boolean`       | `false`                | False    | Highlight odd rows.                                    |
+| `maxSelectableRows`    | `number`        | No limit               | False    | Maximum number of selectable rows.                     |
+| `placeholderEmptyData` | `string`        | `N/A`                  | False    | Placeholder text when no data is available for a cell. |
+| `placeholderEmptyList` | `string`        | `No items to display.` | False    | Placeholder text when data array is empty.             |
+| `placeholderLoading`   | `string`        | `Loading...`           | False    | Placeholder text when data is loading.                 |
+| `rowClickEnabled`      | `boolean`       | `false`                | False    | Enable row click event.                                |
+| `selectable`           | `boolean`       | `false`                | False    | Enable row selection.                                  |
+| `stickyHeader`         | `boolean`       | `false`                | False    | Enable sticky table header.                            |
+| `trackByFn`            | `function`      | Default `trackBy` (id) | False    | Custom trackBy function for rows.                      |
 
 Event Handling
 
@@ -186,7 +266,7 @@ Event Handling
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Development <a name="development"></a>
+## Contributions <a name="contributions"></a>
 
 Please submit all issues, and feature requests here:
 [https://github.com/ProAngular/pro-table/issues][url-new-issue]
