@@ -1,0 +1,19 @@
+pro-table {
+  height: auto;
+  max-height: 500px;
+  border: 1px dashed gray;
+}
+
+pro-table,
+section,
+textarea {
+  width: 100%;
+}
+
+.options-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}

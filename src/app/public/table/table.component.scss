@@ -1,0 +1,111 @@
+$table-bg: var(--mat-table-background-color);
+
+:host {
+  background: $table-bg;
+  display: block;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+:host.clickable tr:not(.expandable-row).mat-mdc-row {
+  cursor: pointer;
+}
+
+table {
+  background: $table-bg;
+  border-collapse: collapse;
+  width: 100%;
+
+  ng-deep thead {
+    background: $table-bg;
+
+    > tr {
+      background: $table-bg;
+    }
+  }
+
+  td,
+  th {
+    text-align: left;
+    padding: 0.5rem;
+    border: none;
+  }
+
+  td.copyable:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  tr.expandable-row {
+    height: 0;
+    max-height: 0;
+    min-height: 0;
+
+    > td {
+      margin: 0;
+      padding: 0;
+      height: 0;
+    }
+  }
+
+  td {
+    background-color: inherit;
+
+    button.expandable-row-button {
+      margin: 0 0 0 0.25rem;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+
+    > div.expandable-row-details {
+      background-color: inherit;
+      display: flex;
+      overflow: hidden;
+      width: 100%;
+
+      > div {
+        width: 100%;
+      }
+    }
+  }
+}
+
+table tr.mat-mdc-row.even {
+  background: $table-bg;
+}
+
+:host.highlight-odd-rows table tr.mat-mdc-row.odd {
+  background: color-mix(in srgb, $table-bg 90%, black 10%);
+}
+
+/* Fallback for browsers without color-mix */
+@supports not (background: color-mix(in srgb, black, white)) {
+  :host.highlight-odd-rows table tr.mat-mdc-row.odd {
+    position: relative;
+  }
+
+  :host.highlight-odd-rows table tr.mat-mdc-row.odd::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+  }
+}
+
+table td {
+  background-color: inherit;
+}
+
+tr.empty > td,
+p.loading {
+  padding: 1rem;
+}
+
+::ng-deep pro-table {
+  .mat-mdc-table thead > tr > th.mat-sort-header {
+    background: var(--mat-table-background-color);
+  }
+}
