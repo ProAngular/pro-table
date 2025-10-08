@@ -15,7 +15,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
   EventEmitter,
   HostBinding,
   Input,
@@ -77,7 +76,6 @@ export class TableComponent<T extends object & { id: number | string }>
 {
   private readonly clipboard = inject(Clipboard);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly elementRef = inject(ElementRef);
   private readonly matSnackBar = inject(MatSnackBar);
 
   protected readonly getData = _getData;
