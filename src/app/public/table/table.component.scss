@@ -61,13 +61,21 @@ table {
 
     > div.expandable-row-details {
       background-color: inherit;
-      display: flex;
+      display: grid;
+      grid-template-rows: 0fr;
       overflow: hidden;
       width: 100%;
+      transition: grid-template-rows 100ms ease-in;
 
       > div {
+        overflow: hidden;
         width: 100%;
       }
+    }
+
+    > div.expandable-row-details.open {
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 100ms ease-out;
     }
   }
 }
@@ -108,4 +116,18 @@ p.loading {
   .mat-mdc-table thead > tr > th.mat-sort-header {
     background: var(--mat-table-background-color);
   }
+}
+
+/* Animations */
+
+@keyframes exp-leave-hold {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.exp-leave {
+  animation: exp-leave-hold 100ms linear both;
 }

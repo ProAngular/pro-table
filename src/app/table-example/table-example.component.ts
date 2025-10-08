@@ -14,7 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { TableComponent } from '../public/table/table.component';
 import { TableColumn, TableSortChangeEvent } from '../public/types';
-import { quickSort } from '../public/utilities';
+import { jsonSafeReplacer, quickSort } from '../public/utilities';
 import {
   COLUMNS,
   COLUMNS_EXPANDABLE,
@@ -72,11 +72,9 @@ export class TableExampleComponent implements OnInit {
   protected readonly sortableHeaders = signal(false);
   protected readonly stickyHeader = signal(false);
 
-  /** ----------------- Data ----------------- */
   protected readonly columns = signal(COLUMNS);
   protected readonly data = signal(DATA);
 
-  /** ------------ Expandable Data ----------- */
   @ViewChild('expendableRow', { static: true })
   public readonly expendableRow!: TemplateRef<unknown>;
   protected readonly columnsExpandable = signal(COLUMNS_EXPANDABLE);
@@ -97,7 +95,9 @@ export class TableExampleComponent implements OnInit {
   }
 
   protected onRowSelect(rows: readonly CustomDataExpandable[]): void {
-    this.selectedRows.set(rows);
+    this.selectedRows.set(
+      rows.map(({ template, ...rest }) => rest as typeof rest),
+    );
   }
 
   protected onSortChange(
@@ -135,7 +135,11 @@ export class TableExampleComponent implements OnInit {
   }
 
   protected pretifyJson(value: unknown): string {
-    return JSON.stringify(value, undefined, 4);
+    try {
+      return JSON.stringify(value, jsonSafeReplacer, 2);
+    } catch {
+      return String(value);
+    }
   }
 
   private mapTemplateToData(item: CustomData): CustomDataExpandable {

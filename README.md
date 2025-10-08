@@ -1,11 +1,14 @@
-<p align="center">
+<div align="center">
   <a href="https://www.ProAngular.com" target="_blank">
     <img src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/public/images/pro-angular-logo.png" />
   </a>
   <h1 align="center">
     <a href="https://www.ProAngular.com" target="_blank">Pro Angular</a>: Table Component
   </h1>
-</p>
+  <p align="center">
+    An abstraction of Angular Material’s table that speeds up development time and gives you quick access to features such as type safe columns, row selection, copy on click, expandable rows, intent based sorting, and more!
+  </p>
+</div>
 
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
@@ -63,14 +66,15 @@ https://www.ProAngular.com/demos/pro-table
 
 ## Description <a name="description"></a>
 
-`@proangular/pro-table` is a **type-safe, Angular 20–first abstraction** over
-Angular Material’s table. It’s designed for apps using **standalone components,
-signals, and the new control-flow syntax** so you can wire up robust data grids
-quickly without giving up control of your data model or rendering. The component
-keeps Material’s performance and accessibility surface, while adding
-strongly-typed columns, selection, copy-on-click, expandable detail rows, and a
-clean sorting contract that **emits intent** instead of mutating your data for
-you.
+`@proangular/pro-table` is a **type-safe, Angular abstraction** over Angular
+Material’s table. It’s designed for apps using **standalone components, signals,
+and the new control-flow syntax** so you can wire up data grids quickly without
+giving up control of your data model or rendering.
+
+The component keeps Material’s performance, accessibility, and theming surface,
+while adding strongly-typed columns, selection, copy-on-click, expandable detail
+rows, and a clean sorting contract that **emits intent** instead of mutating
+data.
 
 ### Why it’s useful (technical)
 
@@ -100,7 +104,7 @@ you.
   values. These affordances reduce the “glue code” you normally write around
   `MatTable`.
 
-- **Built for Angular 20 patterns**  
+- **Built for Angular 20+ patterns**  
   Uses **OnPush** change detection, `@if/@for/@let` in templates, and small
   reactive streams (`BehaviorSubject/ReplaySubject` + `shareReplay`) to keep
   updates efficient. The example shows **signals** + `effect()` integrating
