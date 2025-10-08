@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import {
   BehaviorSubject,
   ReplaySubject,
@@ -37,15 +36,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DateTimePipe } from '../pipes';
 import {
-  DefinedPrimitive,
-  NestedKeysOfString,
   TableColumn,
   TableSortChangeEvent,
   TableTemplateReferenceExpandableObject,
-  TableTemplateReferenceObject,
 } from '../types';
 import {
-  isNonEmptyPrimitive,
+  getData as _getData,
+  getDate as _getDate,
+  getTypeOf as _getTypeOf,
+  isNonEmptyObject as _isNonEmptyObject,
+  isTableTemplateRefExpandableObject as _isTableTemplateRefExpandableObject,
+  isTableTemplateRefObject as _isTableTemplateRefObject,
+  copyToClipboard,
   isNonEmptyString,
   isNonEmptyValue,
 } from '../utilities';
@@ -70,13 +72,21 @@ import {
   styleUrls: ['./table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TableComponent<T extends object & { id: number }>
+export class TableComponent<T extends object & { id: number | string }>
   implements OnInit
 {
   private readonly clipboard = inject(Clipboard);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elementRef = inject(ElementRef);
   private readonly matSnackBar = inject(MatSnackBar);
+
+  protected readonly getData = _getData;
+  protected readonly getDate = _getDate;
+  protected readonly getTypeOf = _getTypeOf;
+  protected readonly isNonEmptyObject = _isNonEmptyObject;
+  protected readonly isTableTemplateRefExpandableObject =
+    _isTableTemplateRefExpandableObject;
+  protected readonly isTableTemplateRefObject = _isTableTemplateRefObject;
 
   @Input({ required: false }) public set selectable(value: BooleanInput) {
     this.selectableSubject.next(coerceBooleanProperty(value));
@@ -185,7 +195,9 @@ export class TableComponent<T extends object & { id: number }>
       matTableDataSource?.data.some((row) => {
         for (const key in row) {
           if (Object.prototype.hasOwnProperty.call(row, key)) {
-            if (this.isTableTemplateRefExpandableObject(row[key])) return true;
+            if (this.isTableTemplateRefExpandableObject(row[key])) {
+              return true;
+            }
           }
         }
         return false;
@@ -198,64 +210,8 @@ export class TableComponent<T extends object & { id: number }>
     this.updateAllSelectedStatus();
   }
 
-  public scrollTop({ offset = 0 }: { offset?: number } = {}): void {
-    const topOfTableWithOffset =
-      this.elementRef.nativeElement.getBoundingClientRect().top +
-      window.scrollY -
-      offset;
-    window.scrollTo({ top: topOfTableWithOffset, behavior: 'smooth' });
-  }
-
   @Input()
   public trackByFn: TrackByFunction<T> = (_index, item) => item['id'];
-
-  protected getData(
-    dataSourceItem: T,
-    columnKey: NestedKeysOfString<T>,
-  ): DefinedPrimitive | object | Date | DateTime {
-    const data = this.getNestedObjectData<T>(dataSourceItem, columnKey);
-    if (data === 0) return '0';
-    if (typeof data === 'boolean') return data ? 'True' : 'False';
-    if (data === null) return this.placeholderEmptyData;
-    return data;
-  }
-
-  protected getDate(value: unknown): Date | null {
-    return value instanceof Date ? value : null;
-  }
-
-  protected getNestedObjectData<T>(
-    data: T,
-    stringKeys: NestedKeysOfString<T>,
-  ): DefinedPrimitive | object | Date | DateTime | null {
-    const keys = stringKeys.split('.');
-    let value: unknown = data;
-
-    for (const key of keys) {
-      if (
-        value instanceof Object &&
-        Object.prototype.hasOwnProperty.call(value, key)
-      ) {
-        value = value[key as keyof typeof value];
-      }
-    }
-
-    if (isNonEmptyPrimitive(value) || typeof value === 'object') {
-      return value;
-    }
-
-    return null;
-  }
-
-  protected getTypeOf(value: unknown): 'date' | 'datetime' | 'time' | string {
-    if (value instanceof Date) return 'date';
-    if (value instanceof DateTime) return 'datetime';
-    return typeof value;
-  }
-
-  protected isNonEmptyObject(value: unknown): value is object {
-    return value instanceof Object && Object.keys(value).length > 0;
-  }
 
   protected isRowExpanded(
     rowObjectData: T,
@@ -271,28 +227,6 @@ export class TableComponent<T extends object & { id: number }>
 
   protected isSelected(row: T): boolean {
     return this.selectedKeys.has(this.trackByFn(0, row));
-  }
-
-  protected isTableTemplateRefObject(
-    value: unknown,
-  ): value is TableTemplateReferenceObject {
-    return (
-      value instanceof Object &&
-      'context' in value &&
-      'templateRef' in value &&
-      !('isExpanded' in value)
-    );
-  }
-
-  protected isTableTemplateRefExpandableObject(
-    value: unknown,
-  ): value is TableTemplateReferenceExpandableObject {
-    return (
-      value instanceof Object &&
-      'context' in value &&
-      'templateRef' in value &&
-      'isExpanded' in value
-    );
   }
 
   protected async masterToggle(): Promise<void> {
@@ -385,13 +319,9 @@ export class TableComponent<T extends object & { id: number }>
 
   private copyToClipboard(item: HTMLTableCellElement): void {
     const content = item.innerHTML.replace(/<[^>]*>/g, '').trim();
+    const copied = copyToClipboard(content, this.clipboard);
 
-    if (!isNonEmptyString(content)) {
-      throw new Error('Failed to copy empty string to the clipboard!');
-    }
-
-    const ok = this.clipboard.copy(content);
-    if (!ok) {
+    if (!copied) {
       this.matSnackBar.open(
         `Failed to copy "${content}" to clipboard!`,
         'Close',
@@ -399,6 +329,7 @@ export class TableComponent<T extends object & { id: number }>
       );
       return;
     }
+
     this.matSnackBar.open(`Copied "${content}" to clipboard!`, 'Close', {
       duration: 3000,
     });

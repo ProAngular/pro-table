@@ -55,7 +55,7 @@
             column.minWidthPx ? column.minWidthPx + 'px' : undefined
           "
         >
-          @let data = getData(dataSourceItem, column.key);
+          @let data = getData(dataSourceItem, column.key, placeholderEmptyData);
           @switch (getTypeOf(data)) {
             @case ('datetime') {
               <span [title]="data | dateTime: 'MM/dd/yyyy, hh:mm a (ZZZZ)'">
