@@ -107,7 +107,7 @@
         </td>
       </ng-container>
     }
-    <ng-container matColumnDef="expandedDetail">
+    <ng-container matColumnDef="expandableRow">
       <td
         mat-cell
         *matCellDef="let rowObjectData"
@@ -115,29 +115,28 @@
       >
         <div
           class="expandable-row-details"
-          [@collapseAnimation]="
-            isRowExpanded(rowObjectData, expandableObject)
-              ? 'expanded'
-              : 'collapsed'
-          "
+          [class.open]="isRowExpanded(rowObjectData, expandableObject)"
         >
-          @if (
-            expandableObject && isRowExpanded(rowObjectData, expandableObject)
-          ) {
-            <div [@exitAnimation]>
-              <ng-container
-                *ngTemplateOutlet="
-                  expandableObject.templateRef;
-                  context: isNonEmptyObject(expandableObject.context)
-                    ? expandableObject.context
-                    : null
-                "
-              ></ng-container>
-            </div>
-          }
+          <div>
+            @if (
+              expandableObject && isRowExpanded(rowObjectData, expandableObject)
+            ) {
+              <div animate.leave="exp-leave">
+                <ng-container
+                  *ngTemplateOutlet="
+                    expandableObject.templateRef;
+                    context: isNonEmptyObject(expandableObject.context)
+                      ? expandableObject.context
+                      : null
+                  "
+                ></ng-container>
+              </div>
+            }
+          </div>
         </div>
       </td>
     </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="columnKeys; sticky: stickyHeader"></tr>
     <tr
       mat-row
@@ -148,7 +147,7 @@
     <tr
       mat-row
       class="expandable-row"
-      *matRowDef="let rowObjectData; columns: ['expandedDetail']"
+      *matRowDef="let rowObjectData; columns: ['expandableRow']"
     ></tr>
     <tr class="empty" *matNoDataRow>
       <td [attr.colspan]="columnKeys?.length || 0">

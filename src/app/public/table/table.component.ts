@@ -49,7 +49,6 @@ import {
   isNonEmptyString,
   isNonEmptyValue,
 } from '../utilities';
-import { TABLE_ANIMATIONS } from './table-animations';
 
 /**
  * A custom table component wrapper for Angular Material's table component.
@@ -70,7 +69,6 @@ import { TABLE_ANIMATIONS } from './table-animations';
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: TABLE_ANIMATIONS,
 })
 export class TableComponent<T extends object & { id: number }>
   implements OnInit
