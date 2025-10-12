@@ -69,6 +69,7 @@
     [columns]="enableExpandableRows() ? columnsExpandable() : columns()"
     [data]="enableExpandableRows() ? dataExpandable() : data()"
     [highlightOddRows]="highlightOddRows()"
+    [initialSort]="{ key: 'id', direction: 'asc' }"
     [maxSelectableRows]="enableMaxSelect() ? 3 : null"
     [rowClickEnabled]="rowClickEnabled()"
     [selectable]="selectable()"

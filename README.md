@@ -5,6 +5,9 @@
   <h1 align="center">
     <a href="https://www.ProAngular.com" target="_blank">Pro Angular</a>: Table Component
   </h1>
+  <a href="https://github.com/ProAngular/pro-table" target="_blank">
+    View Github Repository
+  </a>
   <p align="center">
     An abstraction of Angular Material’s table that speeds up development time and gives you quick access to features such as type safe columns, row selection, copy on click, expandable rows, intent based sorting, and more!
   </p>
@@ -225,29 +228,83 @@ the template when expanded.
 
 ### API <a name="api"></a>
 
-Input Bindings
+#### Input Bindings (required):
 
-| Input                  | Type            | Default Value          | Required | Description                                            |
-| ---------------------- | --------------- | ---------------------- | -------- | ------------------------------------------------------ |
-| `columns`              | `TableColumn[]` | N/A                    | True     | Table column definitions mapped to keys in the `data`. |
-| `data`                 | `any[]`         | N/A                    | True     | Table data array to display.                           |
-| `highlightOddRows`     | `boolean`       | `false`                | False    | Highlight odd rows.                                    |
-| `maxSelectableRows`    | `number`        | No limit               | False    | Maximum number of selectable rows.                     |
-| `placeholderEmptyData` | `string`        | `N/A`                  | False    | Placeholder text when no data is available for a cell. |
-| `placeholderEmptyList` | `string`        | `No items to display.` | False    | Placeholder text when data array is empty.             |
-| `placeholderLoading`   | `string`        | `Loading...`           | False    | Placeholder text when data is loading.                 |
-| `rowClickEnabled`      | `boolean`       | `false`                | False    | Enable row click event.                                |
-| `selectable`           | `boolean`       | `false`                | False    | Enable row selection.                                  |
-| `stickyHeader`         | `boolean`       | `false`                | False    | Enable sticky table header.                            |
-| `trackByFn`            | `function`      | Default `trackBy` (id) | False    | Custom trackBy function for rows.                      |
+| Input     | Type                            | Default Value | Description                                            |
+| --------- | ------------------------------- | ------------- | ------------------------------------------------------ |
+| `columns` | `ReadonlyArray<TableColumn<T>>` | N/A           | Table column definitions mapped to keys in the `data`. |
+| `data`    | `readonly T[]`                  | N/A           | Table data array to display.                           |
 
-Event Handling
+#### Input Bindings (optional):
 
-| Event             | Description                                                 |
-| ----------------- | ----------------------------------------------------------- |
-| `rowClick`        | Emits if a row is clicked when `rowClickEnabled` is true.   |
-| `rowSelectChange` | Emits if a row selection changes when `selectable` is true. |
-| `sortChange`      | Emits when sort changes.                                    |
+| Input                  | Type                      | Default Value          | Description                                            |
+| ---------------------- | ------------------------- | ---------------------- | ------------------------------------------------------ |
+| `highlightOddRows`     | `boolean`                 | `false`                | Highlight odd rows.                                    |
+| `initialSort`          | `TableSortChangeEvent<T>` | N/A                    | Initial sort configuration.                            |
+| `maxSelectableRows`    | `number`                  | No limit               | Maximum number of selectable rows.                     |
+| `placeholderEmptyData` | `string`                  | `N/A`                  | Placeholder text when no data is available for a cell. |
+| `placeholderEmptyList` | `string`                  | `No items to display.` | Placeholder text when data array is empty.             |
+| `placeholderLoading`   | `string`                  | `Loading...`           | Placeholder text when data is loading.                 |
+| `rowClickEnabled`      | `boolean`                 | `false`                | Enable row click event.                                |
+| `selectable`           | `boolean`                 | `false`                | Enable row selection.                                  |
+| `stickyHeader`         | `boolean`                 | `false`                | Enable sticky table header.                            |
+| `trackByFn`            | `function`                | Default `trackBy` (id) | Custom trackBy function for rows.                      |
+
+#### Event Handling
+
+| Event             | Type                                    | Description                                                 |
+| ----------------- | --------------------------------------- | ----------------------------------------------------------- |
+| `rowClick`        | `EventEmitter<T>`                       | Emits if a row is clicked when `rowClickEnabled` is true.   |
+| `rowSelectChange` | `EventEmitter<readonly T[]>`            | Emits if a row selection changes when `selectable` is true. |
+| `sortChange`      | `EventEmitter<TableSortChangeEvent<T>>` | Emits when sort changes.                                    |
+
+#### Table Types
+
+```typescript
+// T = Your row data type (object)
+
+interface TableColumn<T extends object> {
+  /** Whether the column data is copyable on click */
+  copyable?: boolean;
+  /** Whether the column is sortable */
+  isSortable?: boolean;
+  /** The key of the column in the data source */
+  key: NestedKeysOfString<T>;
+  /** The label for the column */
+  label: string;
+  /** Minimum width of the column in pixels */
+  minWidthPx?: number;
+  /** The sort key for the column (if it differs from the `key`) */
+  sortKey?: NestedKeysOfString<T> | string;
+}
+
+type SortDirection = 'asc' | 'desc' | '';
+
+interface TableSortChangeEvent<T> {
+  /** The direction of the sort, or null if cleared */
+  direction: SortDirection | null;
+  /** The column key being sorted */
+  key: NestedKeysOfString<T> | string | null;
+}
+
+type TableTemplateReferenceObject<
+  C = unknown, // Context type
+  T = unknown, // Template type
+> = {
+  /** The context object passed to the template */
+  context: C;
+  /** The template reference to render */
+  templateRef: import('@angular/core').TemplateRef<T>;
+};
+
+interface TableTemplateReferenceExpandableObject<
+  C = unknown, // Context type
+  T = unknown, // Template type
+> extends TableTemplateReferenceObject<C, T> {
+  /** Whether the detail row is expanded */
+  isExpanded: boolean;
+}
+```
 
 <p align="right">[ <a href="#index">Index</a> ]</p>
 
@@ -324,12 +381,12 @@ Thank you to the entire Angular team and community for such a great framework to
 build upon. If you have any questions, please let me know by opening an issue
 [here][url-new-issue].
 
-| Type                                                                      | Info                                                           |
-| :------------------------------------------------------------------------ | :------------------------------------------------------------- |
-| <img width="48" src=".github/images/ng-icons/email.svg" />                | webmaster@codytolene.com                                       |
-| <img width="48" src=".github/images/simple-icons/github.svg" />           | https://github.com/sponsors/CodyTolene                         |
-| <img width="48" src=".github/images/simple-icons/buymeacoffee.svg" />     | https://www.buymeacoffee.com/codytolene                        |
-| <img width="48" src=".github/images/simple-icons/bitcoin-btc-logo.svg" /> | bc1qfx3lvspkj0q077u3gnrnxqkqwyvcku2nml86wmudy7yf2u8edmqq0a5vnt |
+| Type                                                                                                                                             | Info                                                           |
+| :----------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- |
+| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/ng-icons/email.svg" />                | webmaster@codytolene.com                                       |
+| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/simple-icons/github.svg" />           | https://github.com/sponsors/CodyTolene                         |
+| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/simple-icons/buymeacoffee.svg" />     | https://www.buymeacoffee.com/codytolene                        |
+| <img width="48" src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/simple-icons/bitcoin-btc-logo.svg" /> | bc1qfx3lvspkj0q077u3gnrnxqkqwyvcku2nml86wmudy7yf2u8edmqq0a5vnt |
 
 Fin. Happy programming friend!
 
@@ -337,7 +394,8 @@ Cody Tolene
 
 <!-- LINKS -->
 
-[img-info]: .github/images/ng-icons/info.svg
+[img-info]:
+  https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/ng-icons/info.svg
 [url-demo]: https://www.ProAngular.com/demos/pro-table
 [url-example-table-code]: src/app/table-example/table-example.component.html
 [url-new-issue]: https://github.com/ProAngular/pro-table/issues

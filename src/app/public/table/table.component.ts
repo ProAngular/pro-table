@@ -2,7 +2,6 @@ import {
   BehaviorSubject,
   ReplaySubject,
   combineLatest,
-  filter,
   firstValueFrom,
   map,
   shareReplay,
@@ -12,15 +11,16 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   EventEmitter,
   HostBinding,
   Input,
-  OnInit,
   Output,
   TrackByFunction,
+  ViewChild,
   booleanAttribute,
   inject,
   numberAttribute,
@@ -29,7 +29,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSortModule, Sort } from '@angular/material/sort';
+import {
+  MatSort,
+  MatSortModule,
+  Sort,
+  SortDirection,
+} from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -48,8 +53,12 @@ import {
   isTableTemplateRefObject as _isTableTemplateRefObject,
   copyToClipboard,
   isNonEmptyString,
-  isNonEmptyValue,
 } from '../utilities';
+
+const rT = { required: true };
+const rF = { required: false };
+const rFB = { required: false, transform: booleanAttribute };
+const rFN = { required: false, transform: numberAttribute };
 
 /**
  * A custom table component wrapper for Angular Material's table component.
@@ -72,36 +81,81 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent<T extends object & { id: number | string }>
-  implements OnInit
+  implements AfterViewInit
 {
+  /** ---- INJECTED SERVICE DEPENDENCIES ---- */
+
   private readonly clipboard = inject(Clipboard);
   private readonly destroyRef = inject(DestroyRef);
   private readonly matSnackBar = inject(MatSnackBar);
 
-  protected readonly getData = _getData;
-  protected readonly getDate = _getDate;
-  protected readonly getTypeOf = _getTypeOf;
-  protected readonly isNonEmptyObject = _isNonEmptyObject;
-  protected readonly isTableTemplateRefExpandableObject =
-    _isTableTemplateRefExpandableObject;
-  protected readonly isTableTemplateRefObject = _isTableTemplateRefObject;
+  /** ---- INPUT BINDINGS (REQUIRED) ---- */
 
-  @Input({ required: false }) public set selectable(value: BooleanInput) {
+  @Input(rT) public set columns(value: ReadonlyArray<TableColumn<T>>) {
+    this.columnsSubject.next(value);
+  }
+
+  @Input(rT)
+  public set data(values: readonly T[] | null | undefined) {
+    if (values === null || values === undefined) {
+      this.dataSubject.next(null);
+      return;
+    }
+    this.dataSubject.next(
+      new MatTableDataSource<T, MatPaginator>(Array.from(values)),
+    );
+  }
+
+  /** ---- INPUT BINDINGS (OPTIONAL) ---- */
+
+  @Input(rF) public initialSort: TableSortChangeEvent<T> | null = null;
+
+  @Input(rF) public placeholderEmptyData = 'N/A';
+
+  @Input(rF) public placeholderEmptyList = 'No items to display.';
+
+  @Input(rF) public placeholderLoading = 'Loading...';
+
+  @Input(rF) public set selectable(value: BooleanInput) {
     this.selectableSubject.next(coerceBooleanProperty(value));
   }
+
+  @Input(rFB) public stickyHeader = false;
+
+  @Input(rFN) public maxSelectableRows: number | null = null;
+
+  /** ---- INPUT + HOST BINDINGS ---- */
+
+  @HostBinding('class.highlight-odd-rows')
+  @Input(rF)
+  public highlightOddRows = false;
+
+  @HostBinding('class.clickable')
+  @Input(rF)
+  public rowClickEnabled = false;
+
+  /** ---- OUTPUT EVENTS ---- */
+
+  @Output() public readonly rowClick = new EventEmitter<T>();
+
+  @Output() public readonly rowSelectChange = new EventEmitter<readonly T[]>();
+
+  @Output() public readonly sortChange = new EventEmitter<
+    TableSortChangeEvent<T>
+  >();
+
+  /** ---- DATA STREAMS ---- */
+
   private readonly selectableSubject = new BehaviorSubject<boolean>(false);
+
   protected readonly selectableChanges = this.selectableSubject
     .asObservable()
     .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
-  @Input({ required: true }) public set columns(
-    value: ReadonlyArray<TableColumn<T>>,
-  ) {
-    this.columnsSubject.next(value);
-  }
   private readonly columnsSubject = new ReplaySubject<
     ReadonlyArray<TableColumn<T>>
   >(1);
+
   protected readonly columnsChanges = this.columnsSubject.asObservable();
 
   protected readonly columnKeysChanges = combineLatest([
@@ -115,58 +169,39 @@ export class TableComponent<T extends object & { id: number | string }>
     takeUntilDestroyed(this.destroyRef),
   );
 
-  @Input({ required: false })
-  @HostBinding('class.clickable')
-  public rowClickEnabled = false;
-
-  @Input({ required: true })
-  public set data(values: readonly T[] | null | undefined) {
-    if (values === null || values === undefined) {
-      this.dataSubject.next(null);
-      return;
-    }
-
-    this.dataSubject.next(
-      new MatTableDataSource<T, MatPaginator>(Array.from(values)),
-    );
-  }
-
-  @Input() @HostBinding('class.highlight-odd-rows') public highlightOddRows =
-    false;
-
-  @Input({ required: false, transform: numberAttribute })
-  public maxSelectableRows: number | null = null;
-
-  @Input({ required: false }) public placeholderEmptyList =
-    'No items to display.';
-
-  @Input({ required: false }) public placeholderEmptyData = 'N/A';
-
-  @Input({ required: false }) public placeholderLoading = 'Loading...';
-
-  @Input({ required: false, transform: booleanAttribute })
-  public stickyHeader = false;
-
-  @Output() public readonly rowClick = new EventEmitter<T>();
-
-  @Output() public readonly rowSelectChange = new EventEmitter<readonly T[]>();
-
-  @Output() public readonly sortChange = new EventEmitter<
-    TableSortChangeEvent<T>
-  >();
-
   private readonly dataSubject = new ReplaySubject<
     MatTableDataSource<T, MatPaginator> | null | undefined
   >(1);
+
   protected readonly dataChanges = this.dataSubject
     .asObservable()
     .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
-  protected selectedKeys = new Set<string | number>();
-
   private readonly isAllSelectedSubject = new BehaviorSubject<boolean>(false);
+
   protected readonly isAllSelectedChanges =
     this.isAllSelectedSubject.asObservable();
+
+  /** ---- UTILITIES ---- */
+
+  protected readonly getData = _getData;
+
+  protected readonly getDate = _getDate;
+
+  protected readonly getTypeOf = _getTypeOf;
+
+  protected readonly isNonEmptyObject = _isNonEmptyObject;
+
+  protected readonly isTableTemplateRefExpandableObject =
+    _isTableTemplateRefExpandableObject;
+
+  protected readonly isTableTemplateRefObject = _isTableTemplateRefObject;
+
+  /** ---- MEMBERS ---- */
+
+  @ViewChild(MatSort) private matSort!: MatSort;
+
+  protected selectedKeys = new Set<string | number>();
 
   protected set expandableObject(
     value: TableTemplateReferenceExpandableObject | null,
@@ -178,28 +213,28 @@ export class TableComponent<T extends object & { id: number | string }>
     }
     this.#expandableObject = value;
   }
+
   protected get expandableObject(): TableTemplateReferenceExpandableObject | null {
     return this.#expandableObject;
   }
+
   #expandableObject: TableTemplateReferenceExpandableObject | null = null;
 
-  @HostBinding('class.expandable') private isRowExpansionEnabled = false;
+  /** ---- FUNCTIONS ---- */
 
-  public async ngOnInit(): Promise<void> {
-    const matTableDataSource = await firstValueFrom(
-      this.dataChanges.pipe(filter(isNonEmptyValue)),
-    );
-    this.isRowExpansionEnabled =
-      matTableDataSource?.data.some((row) => {
-        for (const key in row) {
-          if (Object.prototype.hasOwnProperty.call(row, key)) {
-            if (this.isTableTemplateRefExpandableObject(row[key])) {
-              return true;
-            }
-          }
-        }
-        return false;
-      }) ?? false;
+  public ngAfterViewInit(): void {
+    if (!this.matSort) {
+      throw new Error('MatSort is not initialized.');
+    }
+
+    const init = this.initialSort;
+    if (init?.key && init.direction) {
+      this.matSort.sort({
+        disableClear: false,
+        id: init.key,
+        start: init.direction satisfies SortDirection,
+      });
+    }
   }
 
   public clearSelected(): void {

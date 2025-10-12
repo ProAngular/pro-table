@@ -28,10 +28,6 @@ export const jsonSafeReplacer = (() => {
     }
 
     if (value && typeof value === 'object') {
-      if (seen.has(value)) {
-        return '[Circular]';
-      }
-
       seen.add(value);
     }
 
