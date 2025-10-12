@@ -224,7 +224,7 @@ export class TableComponent<T extends object & { id: number | string }>
 
   public ngAfterViewInit(): void {
     if (!this.matSort) {
-      throw new Error('MatSort is not initialized.');
+      return; // `mat-sort` isn't used, return early
     }
 
     const init = this.initialSort;
