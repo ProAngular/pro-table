@@ -1,15 +1,30 @@
 <div align="center">
   <a href="https://www.ProAngular.com" target="_blank">
-    <img src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/public/images/pro-angular-logo.png" />
+    <img 
+      src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/public/images/pro-angular-logo.png" 
+    />
   </a>
   <h1 align="center">
-    <a href="https://www.ProAngular.com" target="_blank">Pro Angular</a>: Table Component
+    @proangular/pro-table
   </h1>
-  <a href="https://github.com/ProAngular/pro-table" target="_blank">
-    View Github Repository
-  </a>
   <p align="center">
-    An abstraction of Angular Material’s table that speeds up development time and gives you quick access to features such as type safe columns, row selection, copy on click, expandable rows, intent based sorting, and more!
+    <a href="https://www.ProAngular.com" target="_blank">
+      ProAngular
+    </a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/ProAngular/pro-table" target="_blank">
+      GitHub Repo
+    </a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://www.npmjs.com/@proangular/pro-table" target="_blank">
+      NPM Package
+    </a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://www.ProAngular.com/demos/pro-table" target="_blank">
+      Demo Page
+    </a>
+  </p>
+  <p align="center">
+    An abstraction of Angular Material’s table that speeds up development time 
+    and gives you quick access to features such as type safe columns, row 
+    selection, copy on click, expandable rows, intent based sorting, and more!
   </p>
 </div>
 
@@ -17,19 +32,47 @@
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-[![npm](https://badgen.net/badge/icon/npm?icon=npm&label)](https://www.npmjs.com/@proangular/pro-table)
-[![GitHub](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/ProAngular/pro-table)
-[![TypeScript](https://badgen.net/badge/icon/TypeScript?icon=typescript&label)](https://github.com/ProAngular/pro-table/search?l=typescript)
-[![npm Version](https://badge.fury.io/js/@proangular%2Fngx-scroll-top.svg)](https://www.npmjs.com/@proangular/pro-table)
-[![Node Version](https://badgen.net/npm/node/@proangular/pro-table)](https://www.npmjs.com/@proangular/pro-table)
-[![Package Downloads](https://badgen.net/npm/dw/@proangular/pro-table)](https://www.npmjs.com/@proangular/pro-table)
-[![Size](https://img.shields.io/bundlephobia/minzip/@proangular/pro-table.svg)](https://bundlephobia.com/result?p=ProAngular/pro-table)
-[![Demo Status](https://badgen.net/badge/Demo/Online/green)](https://www.ProAngular.com/demos/pro-table)
-[![Website Status](https://img.shields.io/website?down_color=lightgrey&down_message=Offline&label=Website&up_color=green&up_message=Online&url=https%3A%2F%2Fwww.proangular.com)](https://www.proangular.com)
-[![Sponsors](https://img.shields.io/github/sponsors/proangular?label=Sponsors)](https://github.com/sponsors/ProAngular)
-[![License](https://img.shields.io/npm/l/express.svg?maxAge=2592000)](/LICENSE)
-[![GitHub Package Status](https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-gpr.yml/badge.svg)](https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-gpr.yml)
-[![npmjs Package Status](https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-npmjs.yml/badge.svg)](https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-npmjs.yml)
+<p align="center">
+  <a href="https://www.npmjs.com/@proangular/pro-table" target="_blank">
+    <img src="https://badge.fury.io/js/@proangular%2Fpro-table.svg" >
+  </a>
+  <a href="https://bundlephobia.com/result?p=ProAngular/pro-table" target="_blank">
+    <img src="https://img.shields.io/bundlephobia/minzip/@proangular/pro-table.svg" >
+  </a>
+  <a href="/LICENSE" target="_blank">
+    <img src="https://img.shields.io/npm/l/express.svg?maxAge=2592000" >
+  </a>
+</p>
+
+<!--
+<p align="center">
+  <a href="https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-gpr.yml" target="_blank">
+    <img src="https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-gpr.yml/badge.svg" >
+  </a>
+  <a href="https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-npmjs.yml" target="_blank">
+    <img src="https://github.com/ProAngular/pro-table/actions/workflows/on-merge-main-deploy-npmjs.yml/badge.svg" >
+  </a>
+</p>
+-->
+
+<!---------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------->
+<!---------------------------------------------------------------------------->
+
+<p align="center">
+  <code>ng add @proangular/pro-table</code>
+</p>
+<p align="center">
+  <img 
+    src="https://raw.githubusercontent.com/ProAngular/pro-table/refs/heads/main/.github/images/screenshots/screenshot.png"
+  />
+</p>
+<p align="center">
+  <a 
+    href="https://www.ProAngular.com/demos/pro-table" 
+    target="_blank"
+  >Click here to preview it live!</a>
+</p>
 
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
@@ -37,37 +80,24 @@
 
 ## Index <a name="index"></a>
 
-- [Preview](#preview)
-- [Description](#description)
-- [Installation](#installation)
-  - [Prerequisites](#prerequisites)
-  - [Install Pro Table Components](#install-pro-table-components)
-- [Usage](#usage)
-  - [Importing](#importing)
-  - [Expandable Rows](#expandable-rows)
-  - [API](#api)
-- [Compatibility](#compatibility)
-- [Contributions](#contributions)
-- [Licensing](#licensing)
-- [Wrapping Up](#wrapping-up)
+- [📄 Description](#description)
+- [📦 Installation](#installation)
+  - [📋 Prerequisites](#prerequisites)
+  - [📥 Install Pro Table Components](#install-pro-table-components)
+- [💻 Usage](#usage)
+  - [📤 Importing](#importing)
+  - [🔽 Expandable Rows](#expandable-rows)
+  - [📚 API](#api)
+- [🔄 Compatibility](#compatibility)
+- [🤝 Contributions](#contributions)
+- [⚖️ Licensing](#licensing)
+- [🏁 Wrapping Up](#wrapping-up)
 
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Preview <a name="preview"></a>
-
-Preview the live demo below to see the Pro Table Components in action:
-
-https://www.ProAngular.com/demos/pro-table
-
-<p align="right">[ <a href="#index">Index</a> ]</p>
-
-<!---------------------------------------------------------------------------->
-<!---------------------------------------------------------------------------->
-<!---------------------------------------------------------------------------->
-
-## Description <a name="description"></a>
+## 📄 Description <a name="description"></a>
 
 `@proangular/pro-table` is a **type-safe, Angular abstraction** over Angular
 Material’s table. It’s designed for apps using **standalone components, signals,
@@ -131,12 +161,12 @@ data.
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Installation <a name="installation"></a>
+## 📦 Installation <a name="installation"></a>
 
 Using Node Package Manager ([NPM][url-node-js]) in a new terminal window run the
 following commands to install the required dependencies.
 
-### Prerequisites <a name="prerequisites"></a>
+### 📋 Prerequisites <a name="prerequisites"></a>
 
 **Angular Material**
 
@@ -147,7 +177,7 @@ https://material.angular.io/guide/theming
 ng add @angular/material
 ```
 
-### Install Pro Table Components <a name="install-pro-table-components"></a>
+### 📥 Install Pro Table Components <a name="install-pro-table-components"></a>
 
 ```bash
 ng add @proangular/pro-table@latest
@@ -165,9 +195,9 @@ npm install @proangular/pro-table --save
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Usage <a name="usage"></a>
+## 💻 Usage <a name="usage"></a>
 
-### Importing <a name="importing"></a>
+### 📤 Importing <a name="importing"></a>
 
 Import the table component to use in your Angular application where used:
 
@@ -202,7 +232,7 @@ Import the table component to use in your Angular application where used:
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-### Expandable Rows <a name="expandable-rows"></a>
+### 🔽 Expandable Rows <a name="expandable-rows"></a>
 
 ```html
 <pro-table [columns]="columns()" [data]="rowsWithDetailTemplate()" />
@@ -226,7 +256,7 @@ the template when expanded.
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-### API <a name="api"></a>
+### 📚 API <a name="api"></a>
 
 #### Input Bindings (required):
 
@@ -312,7 +342,7 @@ interface TableTemplateReferenceExpandableObject<
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Compatibility <a name="compatibility"></a>
+## 🔄 Compatibility <a name="compatibility"></a>
 
 | Angular version | @proangular/pro-table | Install                          |
 | --------------- | --------------------- | -------------------------------- |
@@ -327,7 +357,7 @@ interface TableTemplateReferenceExpandableObject<
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Contributions <a name="contributions"></a>
+## 🤝 Contributions <a name="contributions"></a>
 
 Please submit all issues, and feature requests here:
 [https://github.com/ProAngular/pro-table/issues][url-new-issue]
@@ -362,7 +392,7 @@ Thank you for any and all contributions!
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Licensing <a name="licensing"></a>
+## ⚖️ Licensing <a name="licensing"></a>
 
 This project is licensed under the **MIT** License. See the
 [LICENSE](LICENSE.md) file for the pertaining license text.
@@ -375,7 +405,7 @@ This project is licensed under the **MIT** License. See the
 <!---------------------------------------------------------------------------->
 <!---------------------------------------------------------------------------->
 
-## Wrapping Up <a name="wrapping-up"></a>
+## 🏁 Wrapping Up <a name="wrapping-up"></a>
 
 Thank you to the entire Angular team and community for such a great framework to
 build upon. If you have any questions, please let me know by opening an issue
