@@ -9,8 +9,8 @@
     "node": "^20.19.0 || ^22.12.0 || ^24.0.0"
   },
   "scripts": {
+    "bnpm-build-package": "ng-packagr -p ng-package.json",
     "build": "ng build",
-    "build:package": "ng-packagr -p ng-package.json",
     "build:prod": "ng build --configuration production",
     "lint": "ng lint",
     "ng": "ng",
@@ -24,13 +24,13 @@
     "watch": "ng build --watch --configuration development"
   },
   "peerDependencies": {
-    "@angular/animations": "20.3.12",
-    "@angular/cdk": "20.2.13",
-    "@angular/common": "20.3.12",
-    "@angular/core": "20.3.12",
-    "@angular/forms": "20.3.12",
-    "@angular/material": "20.2.13",
-    "@angular/material-luxon-adapter": "20.2.13",
+    "@angular/animations": ">=20 <21",
+    "@angular/cdk": ">=20 <21",
+    "@angular/common": ">=20 <21",
+    "@angular/core": ">=20 <21",
+    "@angular/forms": ">=20 <21",
+    "@angular/material": ">=20 <21",
+    "@angular/material-luxon-adapter": ">=20 <21",
     "@ngneat/until-destroy": ">=10 <11",
     "luxon": ">=3 <4",
     "rxjs": ">=7.8 <8",
