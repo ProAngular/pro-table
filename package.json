@@ -1,6 +1,6 @@
 {
   "name": "@proangular/pro-table",
-  "version": "20.4.1",
+  "version": "20.5.0",
   "description": "A rich, dynamic, and versatile table component based on Angular Material.",
   "author": "Pro Angular <webmaster@proangular.com>",
   "homepage": "https://www.proangular.com",
@@ -38,8 +38,8 @@
     "zone.js": ">=0.15 <0.16"
   },
   "devDependencies": {
-    "@angular/build": "^20.3.3",
-    "@angular/cli": "^20.3.3",
+    "@angular/build": "^20.3.10",
+    "@angular/cli": "^20.3.10",
     "@angular/compiler": "20.3.2",
     "@angular/compiler-cli": "^20.3.2",
     "@angular/platform-browser": "20.3.2",
