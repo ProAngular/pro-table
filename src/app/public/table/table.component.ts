@@ -80,9 +80,9 @@ const rFN = { required: false, transform: numberAttribute };
   styleUrls: ['./table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TableComponent<T extends object & { id: number | string }>
-  implements AfterViewInit
-{
+export class TableComponent<
+  T extends object & { id: number | string },
+> implements AfterViewInit {
   /** ---- INJECTED SERVICE DEPENDENCIES ---- */
 
   private readonly clipboard = inject(Clipboard);

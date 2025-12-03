@@ -137,7 +137,7 @@ data.
   values. These affordances reduce the “glue code” you normally write around
   `MatTable`.
 
-- **Built for Angular 20+ patterns**  
+- **Built for Angular 20-21+ patterns**  
   Uses **OnPush** change detection, `@if/@for/@let` in templates, and small
   reactive streams (`BehaviorSubject/ReplaySubject` + `shareReplay`) to keep
   updates efficient. The example shows **signals** + `effect()` integrating
@@ -346,6 +346,7 @@ interface TableTemplateReferenceExpandableObject<
 
 | Angular version | @proangular/pro-table | Install                          |
 | --------------- | --------------------- | -------------------------------- |
+| v21             | v21.x.x               | ng add @proangular/pro-table@^21 |
 | v20             | v20.x.x               | ng add @proangular/pro-table@^20 |
 | v19             | ------                | Untested                         |
 | v18             | ------                | Untested                         |
