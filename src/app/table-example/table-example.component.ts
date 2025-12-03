@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -26,7 +25,7 @@ import {
 @Component({
   selector: 'pro-table-example',
   templateUrl: './table-example.component.html',
-  imports: [CommonModule, MatCheckboxModule, TableComponent],
+  imports: [MatCheckboxModule, TableComponent],
   standalone: true,
   styleUrl: './table-example.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
