@@ -346,11 +346,23 @@ interface TableTemplateReferenceExpandableObject<
 
 | Angular version | @proangular/pro-table | Install                          |
 | --------------- | --------------------- | -------------------------------- |
+| v22             | v22.x.x               | ng add @proangular/pro-table@^22 |
 | v21             | v21.x.x               | ng add @proangular/pro-table@^21 |
 | v20             | v20.x.x               | ng add @proangular/pro-table@^20 |
 | v19             | ------                | Untested                         |
 | v18             | ------                | Untested                         |
 | v17             | ------                | Untested                         |
+
+v22 moves pro-table to Angular 22. The inputs are signal inputs now and the
+table works without zone.js, so it runs fine in a zoneless app. The selector,
+input names and output names are the same, so your templates don't change. If
+you read the inputs from code (`columns`, `data`, `selectable` and so on),
+they're functions now, so call them. `maxSelectableRows` turns a null or
+non-numeric value into `null`, and `initialSort` now applies when `data` shows
+up after the first render. The selection checkboxes have an `aria-label` now.
+The peer ranges are `>=22 <23` for Angular and Material, and the package doesn't
+need `zone.js` anymore. Tests run on Vitest instead of Karma, and Node 24 is
+required to build the library.
 
 <p align="right">[ <a href="#index">Index</a> ]</p>
 

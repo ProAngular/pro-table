@@ -1,12 +1,11 @@
 import {
-  ChangeDetectionStrategy,
   Component,
-  OnInit,
   TemplateRef,
-  ViewChild,
   effect,
   inject,
   signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -26,11 +25,9 @@ import {
   selector: 'pro-table-example',
   templateUrl: './table-example.component.html',
   imports: [MatCheckboxModule, TableComponent],
-  standalone: true,
   styleUrl: './table-example.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TableExampleComponent implements OnInit {
+export class TableExampleComponent {
   public constructor() {
     effect(() => {
       const copyEmail = this.copyEmail();
@@ -56,6 +53,19 @@ export class TableExampleComponent implements OnInit {
         this.columns.set(columns);
       }
     });
+
+    // Build the expandable rows once the row template has been resolved.
+    effect(() => {
+      const templateRef = this.expendableRow();
+      if (!templateRef) {
+        return;
+      }
+      untracked(() =>
+        this.dataExpandable.set(
+          this.data().map((item) => this.mapTemplateToData(item, templateRef)),
+        ),
+      );
+    });
   }
 
   private readonly matSnackBar = inject(MatSnackBar);
@@ -74,18 +84,12 @@ export class TableExampleComponent implements OnInit {
   protected readonly columns = signal(COLUMNS);
   protected readonly data = signal(DATA);
 
-  @ViewChild('expendableRow', { static: true })
-  public readonly expendableRow!: TemplateRef<unknown>;
+  public readonly expendableRow =
+    viewChild<TemplateRef<unknown>>('expendableRow');
   protected readonly columnsExpandable = signal(COLUMNS_EXPANDABLE);
   protected readonly dataExpandable = signal<readonly CustomDataExpandable[]>(
     [],
   );
-
-  public ngOnInit(): void {
-    this.dataExpandable.set(
-      this.data().map((item) => this.mapTemplateToData(item)),
-    );
-  }
 
   protected onRowClick(row: CustomDataExpandable): void {
     this.matSnackBar.open(`Row clicked with ID: ${row.id}`, 'Close', {
@@ -104,11 +108,12 @@ export class TableExampleComponent implements OnInit {
   ): void {
     const { key, direction } = event;
     const expandable = this.enableExpandableRows();
+    const templateRef = this.expendableRow();
 
     if (key === null || !direction) {
-      if (expandable) {
+      if (expandable && templateRef) {
         this.dataExpandable.set(
-          this.data().map((i) => this.mapTemplateToData(i)),
+          this.data().map((i) => this.mapTemplateToData(i, templateRef)),
         );
       } else {
         this.data.set([...DATA]);
@@ -141,13 +146,16 @@ export class TableExampleComponent implements OnInit {
     }
   }
 
-  private mapTemplateToData(item: CustomData): CustomDataExpandable {
+  private mapTemplateToData(
+    item: CustomData,
+    templateRef: TemplateRef<unknown>,
+  ): CustomDataExpandable {
     return {
       ...item,
       template: {
         context: { data: item },
         isExpanded: false,
-        templateRef: this.expendableRow,
+        templateRef,
       },
     };
   }
