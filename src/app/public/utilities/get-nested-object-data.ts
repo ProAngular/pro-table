@@ -16,6 +16,8 @@ export function getNestedObjectData<T>(
       Object.prototype.hasOwnProperty.call(value, key)
     ) {
       value = value[key as keyof typeof value];
+    } else {
+      return null; // The key isn't on the row, so there is no value to show.
     }
   }
 

@@ -1,16 +1,17 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
-  AfterViewInit,
   Component,
   TrackByFunction,
   booleanAttribute,
   computed,
+  effect,
   inject,
   input,
   numberAttribute,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -66,9 +67,7 @@ const nullableNumberAttribute = (value: unknown): number | null => {
     '[class.clickable]': 'rowClickEnabled()',
   },
 })
-export class TableComponent<
-  T extends object & { id: number | string },
-> implements AfterViewInit {
+export class TableComponent<T extends object & { id: number | string }> {
   /** ---- INJECTED SERVICE DEPENDENCIES ---- */
 
   private readonly clipboard = inject(Clipboard);
@@ -149,6 +148,37 @@ export class TableComponent<
     return new MatTableDataSource<T, MatPaginator>(Array.from(values));
   });
 
+  /** The column the sort header marks as sorted, read by `matSortActive`. */
+  protected readonly sortActive = computed(() => this.initialSort()?.key ?? '');
+
+  /** The direction the sort header shows, read by `matSortDirection`. */
+  protected readonly sortDirection = computed(
+    () => this.initialSort()?.direction ?? '',
+  );
+
+  /**
+   * The sort header state comes from the bound inputs above, so the header has
+   * the right `aria-sort` on its first render. This only tells the consumer.
+   * It runs once per table element, so it also runs when `data` arrives after
+   * the first render.
+   */
+  private lastAnnouncedSort: MatSort | null = null;
+  private readonly announceInitialSort = effect(() => {
+    const matSort = this.matSort();
+    const active = this.initialSort()?.key;
+    const direction = this.initialSort()?.direction;
+    if (
+      !matSort ||
+      !active ||
+      !direction ||
+      this.lastAnnouncedSort === matSort
+    ) {
+      return;
+    }
+    this.lastAnnouncedSort = matSort;
+    untracked(() => this.onSortChange({ active, direction }));
+  });
+
   protected readonly rows = computed(() => this.dataSource()?.data ?? []);
 
   protected readonly columnKeys = computed(() => {
@@ -163,22 +193,6 @@ export class TableComponent<
   });
 
   /** ---- FUNCTIONS ---- */
-
-  public ngAfterViewInit(): void {
-    const matSort = this.matSort();
-    if (!matSort) {
-      return; // `mat-sort` isn't used, return early
-    }
-
-    const init = this.initialSort();
-    if (init?.key && init.direction) {
-      matSort.sort({
-        disableClear: false,
-        id: init.key,
-        start: init.direction,
-      });
-    }
-  }
 
   public clearSelected(): void {
     this.selectedKeys.set(new Set<string | number>());
