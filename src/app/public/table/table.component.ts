@@ -1,40 +1,22 @@
-import {
-  BehaviorSubject,
-  ReplaySubject,
-  combineLatest,
-  firstValueFrom,
-  map,
-  shareReplay,
-} from 'rxjs';
-
 import { Clipboard } from '@angular/cdk/clipboard';
-import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CommonModule } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  EventEmitter,
-  HostBinding,
-  Input,
-  Output,
   TrackByFunction,
-  ViewChild,
   booleanAttribute,
+  computed,
   inject,
+  input,
   numberAttribute,
+  output,
+  signal,
+  viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  MatSort,
-  MatSortModule,
-  Sort,
-  SortDirection,
-} from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -55,10 +37,11 @@ import {
   isNonEmptyString,
 } from '../utilities';
 
-const rT = { required: true };
-const rF = { required: false };
-const rFB = { required: false, transform: booleanAttribute };
-const rFN = { required: false, transform: numberAttribute };
+/** Turns the input into a number, or `null` when it isn't a number. */
+const nullableNumberAttribute = (value: unknown): number | null => {
+  const result = numberAttribute(value);
+  return Number.isNaN(result) ? null : result;
+};
 
 /**
  * A custom table component wrapper for Angular Material's table component.
@@ -67,18 +50,21 @@ const rFN = { required: false, transform: numberAttribute };
  */
 @Component({
   selector: 'pro-table[columns][data]',
-  standalone: true,
   imports: [
-    CommonModule,
-    MatTableModule,
-    MatSortModule,
+    DatePipe,
     MatCheckboxModule,
+    MatSortModule,
+    MatTableModule,
     MatTooltipModule,
+    NgTemplateOutlet,
     DateTimePipe,
   ],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.highlight-odd-rows]': 'highlightOddRows()',
+    '[class.clickable]': 'rowClickEnabled()',
+  },
 })
 export class TableComponent<
   T extends object & { id: number | string },
@@ -86,101 +72,47 @@ export class TableComponent<
   /** ---- INJECTED SERVICE DEPENDENCIES ---- */
 
   private readonly clipboard = inject(Clipboard);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly matSnackBar = inject(MatSnackBar);
 
   /** ---- INPUT BINDINGS (REQUIRED) ---- */
 
-  @Input(rT) public set columns(value: ReadonlyArray<TableColumn<T>>) {
-    this.columnsSubject.next(value);
-  }
+  public readonly columns = input.required<ReadonlyArray<TableColumn<T>>>();
 
-  @Input(rT)
-  public set data(values: readonly T[] | null | undefined) {
-    if (values === null || values === undefined) {
-      this.dataSubject.next(null);
-      return;
-    }
-    this.dataSubject.next(
-      new MatTableDataSource<T, MatPaginator>(Array.from(values)),
-    );
-  }
+  public readonly data = input.required<readonly T[] | null | undefined>();
 
   /** ---- INPUT BINDINGS (OPTIONAL) ---- */
 
-  @Input(rF) public initialSort: TableSortChangeEvent<T> | null = null;
+  public readonly highlightOddRows = input(false);
 
-  @Input(rF) public placeholderEmptyData = 'N/A';
+  public readonly initialSort = input<TableSortChangeEvent<T> | null>(null);
 
-  @Input(rF) public placeholderEmptyList = 'No items to display.';
+  public readonly maxSelectableRows = input<number | null, unknown>(null, {
+    transform: nullableNumberAttribute,
+  });
 
-  @Input(rF) public placeholderLoading = 'Loading...';
+  public readonly placeholderEmptyData = input('N/A');
 
-  @Input(rF) public set selectable(value: BooleanInput) {
-    this.selectableSubject.next(coerceBooleanProperty(value));
-  }
+  public readonly placeholderEmptyList = input('No items to display.');
 
-  @Input(rFB) public stickyHeader = false;
+  public readonly placeholderLoading = input('Loading...');
 
-  @Input(rFN) public maxSelectableRows: number | null = null;
+  public readonly rowClickEnabled = input(false);
 
-  /** ---- INPUT + HOST BINDINGS ---- */
+  public readonly selectable = input(false, { transform: booleanAttribute });
 
-  @HostBinding('class.highlight-odd-rows')
-  @Input(rF)
-  public highlightOddRows = false;
+  public readonly stickyHeader = input(false, { transform: booleanAttribute });
 
-  @HostBinding('class.clickable')
-  @Input(rF)
-  public rowClickEnabled = false;
+  public readonly trackByFn = input<TrackByFunction<T>>(
+    (_index, item) => item['id'],
+  );
 
   /** ---- OUTPUT EVENTS ---- */
 
-  @Output() public readonly rowClick = new EventEmitter<T>();
+  public readonly rowClick = output<T>();
 
-  @Output() public readonly rowSelectChange = new EventEmitter<readonly T[]>();
+  public readonly rowSelectChange = output<readonly T[]>();
 
-  @Output() public readonly sortChange = new EventEmitter<
-    TableSortChangeEvent<T>
-  >();
-
-  /** ---- DATA STREAMS ---- */
-
-  private readonly selectableSubject = new BehaviorSubject<boolean>(false);
-
-  protected readonly selectableChanges = this.selectableSubject
-    .asObservable()
-    .pipe(shareReplay({ bufferSize: 1, refCount: true }));
-
-  private readonly columnsSubject = new ReplaySubject<
-    ReadonlyArray<TableColumn<T>>
-  >(1);
-
-  protected readonly columnsChanges = this.columnsSubject.asObservable();
-
-  protected readonly columnKeysChanges = combineLatest([
-    this.columnsSubject,
-    this.selectableChanges,
-  ]).pipe(
-    map(([columns, selectable]) => {
-      const keys = columns.map(({ key }) => key);
-      return selectable ? ['select', ...keys] : keys;
-    }),
-    takeUntilDestroyed(this.destroyRef),
-  );
-
-  private readonly dataSubject = new ReplaySubject<
-    MatTableDataSource<T, MatPaginator> | null | undefined
-  >(1);
-
-  protected readonly dataChanges = this.dataSubject
-    .asObservable()
-    .pipe(shareReplay({ bufferSize: 1, refCount: true }));
-
-  private readonly isAllSelectedSubject = new BehaviorSubject<boolean>(false);
-
-  protected readonly isAllSelectedChanges =
-    this.isAllSelectedSubject.asObservable();
+  public readonly sortChange = output<TableSortChangeEvent<T>>();
 
   /** ---- UTILITIES ---- */
 
@@ -197,54 +129,61 @@ export class TableComponent<
 
   protected readonly isTableTemplateRefObject = _isTableTemplateRefObject;
 
-  /** ---- MEMBERS ---- */
+  /** ---- STATE ---- */
 
-  @ViewChild(MatSort) private matSort!: MatSort;
+  private readonly matSort = viewChild(MatSort);
 
-  protected selectedKeys = new Set<string | number>();
+  protected readonly selectedKeys = signal<ReadonlySet<string | number>>(
+    new Set<string | number>(),
+  );
 
-  protected set expandableObject(
-    value: TableTemplateReferenceExpandableObject | null,
-  ) {
-    if (value !== null && !this.isTableTemplateRefExpandableObject(value)) {
-      throw new Error(
-        'The expandable value must be of type TableTemplateReferenceExpandableObject.',
-      );
+  protected readonly expandableObject =
+    signal<TableTemplateReferenceExpandableObject | null>(null);
+
+  /** The table data source, or `null` while the data is still loading. */
+  protected readonly dataSource = computed(() => {
+    const values = this.data();
+    if (values === null || values === undefined) {
+      return null;
     }
-    this.#expandableObject = value;
-  }
+    return new MatTableDataSource<T, MatPaginator>(Array.from(values));
+  });
 
-  protected get expandableObject(): TableTemplateReferenceExpandableObject | null {
-    return this.#expandableObject;
-  }
+  protected readonly rows = computed(() => this.dataSource()?.data ?? []);
 
-  #expandableObject: TableTemplateReferenceExpandableObject | null = null;
+  protected readonly columnKeys = computed(() => {
+    const keys: string[] = this.columns().map(({ key }) => key);
+    return this.selectable() ? ['select', ...keys] : keys;
+  });
+
+  protected readonly isAllSelected = computed(() => {
+    const rows = this.rows();
+    const keys = this.selectedKeys();
+    return rows.length > 0 && rows.every((row) => keys.has(this.keyOf(row)));
+  });
 
   /** ---- FUNCTIONS ---- */
 
   public ngAfterViewInit(): void {
-    if (!this.matSort) {
+    const matSort = this.matSort();
+    if (!matSort) {
       return; // `mat-sort` isn't used, return early
     }
 
-    const init = this.initialSort;
+    const init = this.initialSort();
     if (init?.key && init.direction) {
-      this.matSort.sort({
+      matSort.sort({
         disableClear: false,
         id: init.key,
-        start: init.direction satisfies SortDirection,
+        start: init.direction,
       });
     }
   }
 
   public clearSelected(): void {
-    this.selectedKeys.clear();
+    this.selectedKeys.set(new Set<string | number>());
     this.rowSelectChange.emit([]);
-    this.updateAllSelectedStatus();
   }
-
-  @Input()
-  public trackByFn: TrackByFunction<T> = (_index, item) => item['id'];
 
   protected isRowExpanded(
     rowObjectData: T,
@@ -259,38 +198,29 @@ export class TableComponent<
   }
 
   protected isSelected(row: T): boolean {
-    return this.selectedKeys.has(this.trackByFn(0, row));
+    return this.selectedKeys().has(this.keyOf(row));
   }
 
-  protected async masterToggle(): Promise<void> {
-    const data = (await firstValueFrom(this.dataChanges))?.data ?? [];
-    const allSelected = data.every((row) => this.isSelected(row));
+  protected masterToggle(): void {
+    const rows = this.rows();
+    const max = this.maxSelectableRows();
+    const next = new Set(this.selectedKeys());
+    const allSelected = rows.every((row) => next.has(this.keyOf(row)));
 
-    if (
-      allSelected ||
-      (this.maxSelectableRows !== null &&
-        this.selectedKeys.size >= this.maxSelectableRows)
-    ) {
-      for (const row of data) this.selectedKeys.delete(this.trackByFn(0, row));
+    if (allSelected || (max !== null && next.size >= max)) {
+      for (const row of rows) next.delete(this.keyOf(row));
     } else {
-      for (const row of data) {
-        if (
-          this.maxSelectableRows !== null &&
-          this.selectedKeys.size >= this.maxSelectableRows
-        ) {
-          this.matSnackBar.open(
-            `You can only select up to ${this.maxSelectableRows} rows.`,
-            'Close',
-            { duration: 3000 },
-          );
+      for (const row of rows) {
+        if (max !== null && next.size >= max) {
+          this.notifyMaxSelected(max);
           break;
         }
-        this.selectedKeys.add(this.trackByFn(0, row));
+        next.add(this.keyOf(row));
       }
     }
 
-    this.rowSelectChange.emit(await this.getSelectedRows());
-    this.updateAllSelectedStatus();
+    this.selectedKeys.set(next);
+    this.rowSelectChange.emit(this.getSelectedRows());
   }
 
   protected onRowClick(
@@ -305,49 +235,51 @@ export class TableComponent<
       this.copyToClipboard(item);
       return;
     }
-    if (!this.rowClickEnabled) return;
+    if (!this.rowClickEnabled()) return;
 
     this.rowClick.emit(rowObjectData);
   }
 
-  protected async onSortChange(sort: Sort): Promise<void> {
+  protected onSortChange(sort: Sort): void {
     const key = sort.active;
     const direction = isNonEmptyString(sort.direction) ? sort.direction : null;
-    const columns = await firstValueFrom(this.columnsSubject);
-    const column = columns.find((c) => c.key === key);
+    const column = this.columns().find((c) => c.key === key);
     if (!column?.isSortable) return;
 
-    const sortChange: TableSortChangeEvent<T> = {
+    this.sortChange.emit({
       direction,
       key:
         direction && isNonEmptyString(key)
           ? (column.sortKey ?? column.key)
           : null,
-    };
-    this.sortChange.emit(sortChange);
+    });
   }
 
-  protected async toggleSelection(row: T): Promise<void> {
-    const key = this.trackByFn(0, row);
-    if (this.selectedKeys.has(key)) {
-      this.selectedKeys.delete(key);
+  protected toggleExpandable(
+    value: TableTemplateReferenceExpandableObject,
+  ): void {
+    this.expandableObject.update((current) =>
+      current === value ? null : value,
+    );
+  }
+
+  protected toggleSelection(row: T): void {
+    const key = this.keyOf(row);
+    const max = this.maxSelectableRows();
+    const next = new Set(this.selectedKeys());
+
+    if (next.has(key)) {
+      next.delete(key);
     } else {
-      if (
-        this.maxSelectableRows !== null &&
-        this.selectedKeys.size >= this.maxSelectableRows
-      ) {
-        this.matSnackBar.open(
-          `You can only select up to ${this.maxSelectableRows} rows.`,
-          'Close',
-          { duration: 3000 },
-        );
+      if (max !== null && next.size >= max) {
+        this.notifyMaxSelected(max);
         return;
       }
-      this.selectedKeys.add(key);
+      next.add(key);
     }
 
-    this.rowSelectChange.emit(await this.getSelectedRows());
-    this.updateAllSelectedStatus();
+    this.selectedKeys.set(next);
+    this.rowSelectChange.emit(this.getSelectedRows());
   }
 
   private copyToClipboard(item: HTMLTableCellElement): void {
@@ -368,16 +300,18 @@ export class TableComponent<
     });
   }
 
-  private async getSelectedRows(): Promise<T[]> {
-    const data = (await firstValueFrom(this.dataChanges))?.data ?? [];
-    return data.filter((row) => this.selectedKeys.has(this.trackByFn(0, row)));
+  private getSelectedRows(): T[] {
+    const keys = this.selectedKeys();
+    return this.rows().filter((row) => keys.has(this.keyOf(row)));
   }
 
-  private async updateAllSelectedStatus(): Promise<void> {
-    const data = (await firstValueFrom(this.dataChanges))?.data ?? [];
-    const allSelected =
-      data.length > 0 &&
-      data.every((row) => this.selectedKeys.has(this.trackByFn(0, row)));
-    this.isAllSelectedSubject.next(allSelected);
+  private keyOf(row: T): string | number {
+    return this.trackByFn()(0, row) as string | number;
+  }
+
+  private notifyMaxSelected(max: number): void {
+    this.matSnackBar.open(`You can only select up to ${max} rows.`, 'Close', {
+      duration: 3000,
+    });
   }
 }
